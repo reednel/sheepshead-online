@@ -1,0 +1,107 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table users {
+  user_id INT [primary key, increment]
+  username VARCHAR(32) [not null, unique]
+  email VARCHAR(128) [not null, unique]
+  password VARCHAR(256) [not null]
+  display_name VARCHAR(32)
+  games_played INT [default: 0]
+  lifetime_score INT [default: 0]
+  private_lifetime_score BOOLEAN [default: FALSE]
+  display_city VARCHAR(64)
+  display_region VARCHAR(64)
+  display_country VARCHAR(64)
+  created_at DATETIME [default: `now()`]
+}
+
+Table friends {
+  user1_id INT [primary key, increment]
+  user2_id INT [primary key]
+  start_date DATETIME [default: `now()`]
+}
+
+Table games {
+  game_id INT [primary key, increment]
+  gamemode_id TINYINT [not null]
+  called_ace TINYINT
+  start_time DATETIME [default: `now()`]
+}
+
+Table gamemodes {
+  gamemode_id TINYINT [primary key, increment]
+  gamemode_code VARCHAR(8) [not null, unique]
+  player_count TINYINT [not null]
+  blind_size TINYINT
+  leaster BOOLEAN
+}
+
+Table players {
+  user_id INT [primary key]
+  game_id INT [primary key]
+  order_index TINYINT [not null]
+  goodguy BOOLEAN
+  badguy BOOLEAN
+  picker BOOLEAN
+  dealer BOOLEAN
+}
+
+Table rounds {
+  game_id INT [primary key]
+  round_id TINYINT [primary key, increment]
+  order_index TINYINT [not null]
+  winner INT [not null]
+  points_won TINYINT [not null]
+}
+
+Table turns {
+  game_id INT [primary key]
+  round_id TINYINT [primary key]
+  turn_id TINYINT [primary key, increment]
+  order_index TINYINT [not null]
+  user_id INT [not null]
+  card_id TINYINT [not null]
+}
+
+Table cards {
+  card_id TINYINT [primary key]
+  suit VARCHAR(8) [not null]
+  power TINYINT [not null]
+  points TINYINT [not null]
+}
+
+Ref: games.gamemode_id < gamemodes.gamemode_id
+Ref: games.called_ace < cards.card_id
+
+Ref: players.user_id < users.user_id
+Ref: players.game_id < games.game_id
+
+Ref: friends.user1_id < users.user_id
+Ref: friends.user2_id < users.user_id
+
+Ref: rounds.game_id < games.game_id
+Ref: rounds.winner < players.user_id
+
+Ref: turns.game_id < rounds.game_id
+Ref: turns.round_id < rounds.round_id
+Ref: turns.user_id < players.user_id
+Ref: turns.card_id < cards.card_id 
+
+// CONDENSED //
+
+Table games_condensed {
+  game_id INT [primary key, increment]
+  gamemode_id TINYINT [not null]
+  ordered_players VARBINARY(32) [not null]
+  ordered_deck VARBINARY(32) [not null]
+  starting_blind VARBINARY(4)
+  called_ace TINYINT
+  start_time DATETIME [default: `now()`]
+
+  note: 'A space-efficient alternative to the tables {games, rounds, turns, players} for recording games. (~75B/game vs ~500B/game)'
+}
+
+Ref: games_condensed.gamemode_id < gamemodes.gamemode_id
+Ref: games_condensed.called_ace < cards.card_id
+
