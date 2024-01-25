@@ -1,5 +1,0 @@
-# Requirements
-
-## Database
-
-## Backend API
