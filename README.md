@@ -1,4 +1,4 @@
-# Pages
+# Sheepshead Online
 
 [![GitHub License](https://img.shields.io/github/license/reednel/sheepshead?color=red)](https://github.com/reednel/sheepshead/blob/main/LICENSE) [![Repo Size](https://img.shields.io/github/repo-size/reednel/sheepshead)](https://github.com/reednel/sheepshead)
 
@@ -18,6 +18,10 @@ Install Node Modules: `npm install`
 
 Build: `npm run dev`
 
+## Contributions, Questions, Issues, and Feedback
+
+Users interested in expanding functionalities in Sheepshead Online are welcome to do so. Issues reports are encouraged through Github's [issue tracker](https://github.com/reednel/sheepshead-online/issues). See details on how to contribute and report issues in [CONTRIBUTING.md](https://github.com/reednel/sheepshead-online/blob/master/CONTRIBUTING.md).
+
 ## License
 
-This software is licensed under the [MIT License](LICENSE).
+This software is licensed under the [GNU AGPLv3](LICENSE).
