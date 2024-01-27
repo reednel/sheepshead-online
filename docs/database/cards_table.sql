@@ -1,5 +1,6 @@
-INSERT INTO cards (card_id, suit, power, points) 
-VALUES 
+INSERT INTO cards
+  (card_id, suit, power, points)
+VALUES
   (1, 'T', 14, 3),
   (2, 'T', 13, 3),
   (3, 'T', 12, 3),

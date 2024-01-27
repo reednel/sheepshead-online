@@ -1,0 +1,133 @@
+// https://www.postgresqltutorial.com/postgresql-tutorial/postgresql-check-constraint/
+
+CREATE TABLE "users" (
+  "user_id" SERIAL PRIMARY KEY,
+  "username" VARCHAR(32) UNIQUE NOT NULL,
+  "email" VARCHAR(128) UNIQUE NOT NULL,
+  "password" VARCHAR(256) NOT NULL,
+  "display_name" VARCHAR(32),
+  "display_city" VARCHAR(64),
+  "display_region" VARCHAR(64),
+  "display_country" VARCHAR(64),
+  "bio" VARCHAR(256),
+  "games_played" "INT UNSIGNED" DEFAULT 0,
+  "lifetime_score" INT DEFAULT 0,
+  "datetime_created" DATETIME NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "user_configs" (
+  "user_id" "INT UNSIGNED" PRIMARY KEY,
+  "lifetime_score_visible" BOOLEAN NOT NULL DEFAULT TRUE,
+  "friend_requests_enabled" BOOLEAN NOT NULL DEFAULT TRUE,
+  "game_chat_enabled" BOOLEAN NOT NULL DEFAULT TRUE,
+  "safe_chat_enabled" BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE "users_banned" (
+  "user_banned_id" SERIAL PRIMARY KEY,
+  "user_id" "INT UNSIGNED" UNIQUE NOT NULL,
+  "email" VARCHAR(128) UNIQUE NOT NULL,
+  "reason" VARCHAR(256),
+  "datetime_created" DATETIME NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "friends" (
+  "user_1_id" "INT UNSIGNED",
+  "user_2_id" "INT UNSIGNED",
+  "datetime_created" DATETIME NOT NULL DEFAULT (now()),
+  PRIMARY KEY ("user_1_id", "user_2_id")
+);
+
+CREATE TABLE "friend_requests" (
+  "from_user_id" "INT UNSIGNED",
+  "to_user_id" "INT UNSIGNED",
+  "datetime_created" DATETIME NOT NULL DEFAULT (now()),
+  PRIMARY KEY ("from_user_id", "to_user_id")
+);
+
+CREATE TABLE "games" (
+  "game_id" SERIAL PRIMARY KEY,
+  "gamemode_id" "INT UNSIGNED" NOT NULL,
+  "called_ace" CHAR(2),
+  "good_guys_win" BOOLEAN NOT NULL,
+  "winning_score" "TINYINT UNSIGNED" NOT NULL,
+  "datetime_created" DATETIME NOT NULL DEFAULT (now())
+);
+
+CREATE TABLE "gamemodes" (
+  "gamemode_id" SERIAL PRIMARY KEY,
+  "gamemode_code" VARCHAR(8) UNIQUE NOT NULL,
+  "player_count" "TINYINT UNSIGNED" NOT NULL,
+  "blind_size" "TINYINT UNSIGNED",
+  "leaster" BOOLEAN
+);
+
+CREATE TABLE "players" (
+  "user_id" "INT UNSIGNED",
+  "game_id" "INT UNSIGNED",
+  "player_index" "TINYINT UNSIGNED" NOT NULL,
+  "good_guy" BOOLEAN NOT NULL DEFAULT FALSE,
+  "picker" BOOLEAN NOT NULL DEFAULT FALSE,
+  PRIMARY KEY ("user_id", "game_id")
+);
+
+CREATE TABLE "rounds" (
+  "game_id" "INT UNSIGNED",
+  "round_id" SERIAL,
+  "round_index" "TINYINT UNSIGNED" NOT NULL,
+  "winner" "INT UNSIGNED" NOT NULL,
+  "points_won" "TINYINT UNSIGNED" NOT NULL,
+  PRIMARY KEY ("game_id", "round_id")
+);
+
+CREATE TABLE "turns" (
+  "game_id" "INT UNSIGNED",
+  "round_id" "TINYINT UNSIGNED",
+  "turn_id" SERIAL,
+  "turn_index" "TINYINT UNSIGNED" NOT NULL,
+  "user_id" "TINYINT UNSIGNED" NOT NULL,
+  "card_code" CHAR(2) NOT NULL,
+  PRIMARY KEY ("game_id", "round_id", "turn_id")
+);
+
+CREATE TABLE "cards" (
+  "card_id" "TINYINT UNSIGNED" PRIMARY KEY,
+  "card_code" CHAR(2) UNIQUE NOT NULL,
+  "suit" CHAR(1) NOT NULL,
+  "rank" "TINYINT UNSIGNED" NOT NULL,
+  "value" "TINYINT UNSIGNED" NOT NULL
+);
+
+ALTER TABLE "gamemodes" ADD FOREIGN KEY ("gamemode_id") REFERENCES "games" ("gamemode_id");
+
+ALTER TABLE "cards" ADD FOREIGN KEY ("card_code") REFERENCES "games" ("called_ace");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "players" ("user_id");
+
+ALTER TABLE "games" ADD FOREIGN KEY ("game_id") REFERENCES "players" ("game_id");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "friends" ("user_1_id");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "friends" ("user_2_id");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "user_configs" ("user_id");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "users_banned" ("user_id");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("email") REFERENCES "users_banned" ("email");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "friend_requests" ("from_user_id");
+
+ALTER TABLE "users" ADD FOREIGN KEY ("user_id") REFERENCES "friend_requests" ("to_user_id");
+
+ALTER TABLE "games" ADD FOREIGN KEY ("game_id") REFERENCES "rounds" ("game_id");
+
+ALTER TABLE "players" ADD FOREIGN KEY ("user_id") REFERENCES "rounds" ("winner");
+
+ALTER TABLE "games" ADD FOREIGN KEY ("game_id") REFERENCES "turns" ("game_id");
+
+ALTER TABLE "rounds" ADD FOREIGN KEY ("round_id") REFERENCES "turns" ("round_id");
+
+ALTER TABLE "players" ADD FOREIGN KEY ("user_id") REFERENCES "turns" ("user_id");
+
+ALTER TABLE "cards" ADD FOREIGN KEY ("card_code") REFERENCES "turns" ("card_code");
