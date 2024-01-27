@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model cards {
+  card_id   Int     @id @db.SmallInt
+  card_code String  @unique @db.Char(2)
+  suit      String  @db.Char(1)
+  power     Int     @db.SmallInt
+  points    Int     @db.SmallInt
+  games     games[]
+  turns     turns[]
+}
+
+model friend_requests {
+  from_user_id                              Int
+  to_user_id                                Int
+  datetime_created                          DateTime @default(now()) @db.Timestamp(6)
+  users_friend_requests_from_user_idTousers users    @relation("friend_requests_from_user_idTousers", fields: [from_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  users_friend_requests_to_user_idTousers   users    @relation("friend_requests_to_user_idTousers", fields: [to_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([from_user_id, to_user_id])
+}
+
+model friends {
+  user_1_id                      Int
+  user_2_id                      Int
+  datetime_created               DateTime @default(now()) @db.Timestamp(6)
+  users_friends_user_1_idTousers users    @relation("friends_user_1_idTousers", fields: [user_1_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  users_friends_user_2_idTousers users    @relation("friends_user_2_idTousers", fields: [user_2_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_1_id, user_2_id])
+}
+
+model gamemodes {
+  gamemode_id   Int      @id @default(autoincrement()) @db.SmallInt
+  gamemode_code String   @unique @db.VarChar(8)
+  player_count  Int      @db.SmallInt
+  blind_size    Int?     @db.SmallInt
+  leaster       Boolean?
+  games         games[]
+}
+
+model games {
+  game_id          Int       @id @default(autoincrement())
+  gamemode_id      Int
+  called_ace       String?   @db.Char(2)
+  good_guys_win    Boolean
+  winning_score    Int       @db.SmallInt
+  datetime_created DateTime  @default(now()) @db.Timestamp(6)
+  cards            cards?    @relation(fields: [called_ace], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
+  gamemodes        gamemodes @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
+  players          players[]
+  rounds           rounds[]
+}
+
+model players {
+  user_id      Int
+  game_id      Int
+  player_index Int     @db.SmallInt
+  good_guy     Boolean @default(false)
+  picker       Boolean @default(false)
+  games        games   @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  users        users   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([user_id, game_id])
+}
+
+model rounds {
+  game_id     Int
+  round_id    Int     @default(autoincrement()) @db.SmallInt
+  round_index Int     @db.SmallInt
+  winner      Int
+  points_won  Int     @db.SmallInt
+  games       games   @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  users       users   @relation(fields: [winner], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  turns       turns[]
+
+  @@id([game_id, round_id])
+}
+
+model turns {
+  game_id    Int
+  round_id   Int    @db.SmallInt
+  turn_id    Int    @default(autoincrement()) @db.SmallInt
+  turn_index Int    @db.SmallInt
+  user_id    Int    @db.SmallInt
+  card_code  String @db.Char(2)
+  cards      cards  @relation(fields: [card_code], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
+  rounds     rounds @relation(fields: [game_id, round_id], references: [game_id, round_id], onDelete: NoAction, onUpdate: NoAction)
+  users      users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([game_id, round_id, turn_id])
+}
+
+model user_configs {
+  user_id                 Int          @id
+  lifetime_score_visible  Boolean      @default(true)
+  friend_requests_enabled Boolean      @default(true)
+  game_chat_enabled       Boolean      @default(true)
+  safe_chat_enabled       Boolean      @default(false)
+  app_theme               color_theme?
+  users                   users?
+}
+
+model users {
+  user_id                                             Int               @id @default(autoincrement())
+  username                                            String            @unique @db.VarChar(32)
+  email                                               String            @unique @db.VarChar(128)
+  password                                            String            @db.VarChar(256)
+  display_name                                        String?           @db.VarChar(32)
+  display_city                                        String?           @db.VarChar(64)
+  display_region                                      String?           @db.VarChar(64)
+  display_country                                     String?           @db.VarChar(64)
+  bio                                                 String?           @db.VarChar(256)
+  games_played                                        Int?              @default(0)
+  lifetime_score                                      Int?              @default(0)
+  datetime_created                                    DateTime          @default(now()) @db.Timestamp(6)
+  friend_requests_friend_requests_from_user_idTousers friend_requests[] @relation("friend_requests_from_user_idTousers")
+  friend_requests_friend_requests_to_user_idTousers   friend_requests[] @relation("friend_requests_to_user_idTousers")
+  friends_friends_user_1_idTousers                    friends[]         @relation("friends_user_1_idTousers")
+  friends_friends_user_2_idTousers                    friends[]         @relation("friends_user_2_idTousers")
+  players                                             players[]
+  rounds                                              rounds[]
+  turns                                               turns[]
+  user_configs                                        user_configs      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users_banned {
+  user_banned_id   Int      @id @default(autoincrement())
+  user_id          Int      @unique
+  email            String   @unique @db.VarChar(128)
+  reason           String?  @db.VarChar(256)
+  datetime_created DateTime @default(now()) @db.Timestamp(6)
+}
+
+enum color_theme {
+  light
+  dark
+  system
+}
