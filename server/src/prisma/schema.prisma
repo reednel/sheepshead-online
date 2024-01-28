@@ -23,6 +23,7 @@ model friend_requests {
   datetime_created                          DateTime @default(now()) @db.Timestamp(6)
   users_friend_requests_from_user_idTousers users    @relation("friend_requests_from_user_idTousers", fields: [from_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   users_friend_requests_to_user_idTousers   users    @relation("friend_requests_to_user_idTousers", fields: [to_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  // CHECK from_user_id != to_user_id
 
   @@id([from_user_id, to_user_id])
 }
@@ -33,6 +34,7 @@ model friends {
   datetime_created               DateTime @default(now()) @db.Timestamp(6)
   users_friends_user_1_idTousers users    @relation("friends_user_1_idTousers", fields: [user_1_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   users_friends_user_2_idTousers users    @relation("friends_user_2_idTousers", fields: [user_2_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  // CHECK from_user_id != to_user_id
 
   @@id([user_1_id, user_2_id])
 }
@@ -97,7 +99,7 @@ model turns {
 }
 
 model user_configs {
-  user_config_id          Int         @id @default(autoincrement())
+  user_config_id          Int         @id @default(autoincrement()) // just use user_id as id? // nonnegative int?
   user_id                 Int         @unique
   lifetime_score_visible  Boolean     @default(true)
   friend_requests_enabled Boolean     @default(true)
