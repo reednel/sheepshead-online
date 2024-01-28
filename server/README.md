@@ -15,4 +15,5 @@ brew services stop postgresql
 npx prisma db pull
 npx prisma migrate dev --name init
 
+npx ts-node src/index.ts
 ```

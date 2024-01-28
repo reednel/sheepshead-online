@@ -26,6 +26,9 @@ node_modules
 .cache
 **/.cache
 
+# Prisma Migrations
+**/prisma/migrations
+
 # Additonal
 .vscode
 .DS_Store

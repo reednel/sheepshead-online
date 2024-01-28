@@ -21,8 +21,8 @@ model friend_requests {
   from_user_id                              Int
   to_user_id                                Int
   datetime_created                          DateTime @default(now()) @db.Timestamp(6)
-  users_friend_requests_from_user_idTousers users    @relation("friend_requests_from_user_idTousers", fields: [from_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  users_friend_requests_to_user_idTousers   users    @relation("friend_requests_to_user_idTousers", fields: [to_user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  users_friend_requests_from_user_idTousers users    @relation("friend_requests_from_user_idTousers", fields: [from_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  users_friend_requests_to_user_idTousers   users    @relation("friend_requests_to_user_idTousers", fields: [to_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([from_user_id, to_user_id])
 }
@@ -31,8 +31,8 @@ model friends {
   user_1_id                      Int
   user_2_id                      Int
   datetime_created               DateTime @default(now()) @db.Timestamp(6)
-  users_friends_user_1_idTousers users    @relation("friends_user_1_idTousers", fields: [user_1_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  users_friends_user_2_idTousers users    @relation("friends_user_2_idTousers", fields: [user_2_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  users_friends_user_1_idTousers users    @relation("friends_user_1_idTousers", fields: [user_1_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  users_friends_user_2_idTousers users    @relation("friends_user_2_idTousers", fields: [user_2_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 
   @@id([user_1_id, user_2_id])
 }
@@ -73,7 +73,6 @@ model players {
 
 model rounds {
   game_id     Int
-  round_id    Int     @default(autoincrement()) @db.SmallInt
   round_index Int     @db.SmallInt
   winner      Int
   points_won  Int     @db.SmallInt
@@ -81,31 +80,31 @@ model rounds {
   users       users   @relation(fields: [winner], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
   turns       turns[]
 
-  @@id([game_id, round_id])
+  @@id([game_id, round_index])
 }
 
 model turns {
-  game_id    Int
-  round_id   Int    @db.SmallInt
-  turn_id    Int    @default(autoincrement()) @db.SmallInt
-  turn_index Int    @db.SmallInt
-  user_id    Int    @db.SmallInt
-  card_code  String @db.Char(2)
-  cards      cards  @relation(fields: [card_code], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
-  rounds     rounds @relation(fields: [game_id, round_id], references: [game_id, round_id], onDelete: NoAction, onUpdate: NoAction)
-  users      users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  game_id     Int
+  round_index Int    @db.SmallInt
+  turn_index  Int    @db.SmallInt
+  user_id     Int    @db.SmallInt
+  card_code   String @db.Char(2)
+  cards       cards  @relation(fields: [card_code], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
+  rounds      rounds @relation(fields: [game_id, round_index], references: [game_id, round_index], onDelete: NoAction, onUpdate: NoAction)
+  users       users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([game_id, round_id, turn_id])
+  @@id([game_id, round_index, turn_index])
 }
 
 model user_configs {
-  user_id                 Int          @id
-  lifetime_score_visible  Boolean      @default(true)
-  friend_requests_enabled Boolean      @default(true)
-  game_chat_enabled       Boolean      @default(true)
-  safe_chat_enabled       Boolean      @default(false)
-  app_theme               color_theme?
-  users                   users?
+  user_config_id          Int         @id @default(autoincrement())
+  user_id                 Int         @unique
+  lifetime_score_visible  Boolean     @default(true)
+  friend_requests_enabled Boolean     @default(true)
+  game_chat_enabled       Boolean     @default(true)
+  safe_chat_enabled       Boolean     @default(false)
+  app_theme               color_theme @default(system)
+  users                   users       @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model users {
@@ -128,7 +127,7 @@ model users {
   players                                             players[]
   rounds                                              rounds[]
   turns                                               turns[]
-  user_configs                                        user_configs      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  user_configs                                        user_configs?
 }
 
 model users_banned {
