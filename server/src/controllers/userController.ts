@@ -26,7 +26,7 @@ export async function createUser(req: Request, res: Response) {
       });
       return { user, userConfig };
     });
-    res.json(result);
+    res.json({ message: "User created" });
   } catch (error) {
     console.error("Error creating user:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -48,7 +48,7 @@ export async function deleteUser(req: Request, res: Response) {
     const result = await prisma.users.delete({
       where: { user_id: user.user_id },
     });
-    res.json(result);
+    res.json({ message: "User deleted" });
   } catch (error) {
     console.error(`Error deleting user:`, error);
     res.status(500).json({ message: "Internal server error" });
