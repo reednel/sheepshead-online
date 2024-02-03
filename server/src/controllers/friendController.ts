@@ -1,5 +1,5 @@
-import { prisma } from "../utils/prismaClient";
 import { Request, Response } from "express";
+import { prisma } from "../utils/prismaClient";
 import { getUserByUsername } from "./userController";
 
 // Send a friend request

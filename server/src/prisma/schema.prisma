@@ -40,23 +40,33 @@ model friends {
 }
 
 model gamemodes {
-  gamemode_id   Int      @id @default(autoincrement()) @db.SmallInt
-  gamemode_code String   @unique @db.VarChar(8)
-  player_count  Int      @db.SmallInt
-  blind_size    Int?     @db.SmallInt
-  leaster       Boolean?
-  games         games[]
+  gamemode_id   Int          @id @default(autoincrement()) @db.SmallInt
+  gamemode_code String       @unique @db.VarChar(8)
+  player_count  Int          @db.SmallInt
+  blind_size    Int?         @db.SmallInt
+  gatherings    gatherings[]
+}
+
+model gatherings {
+  gathering_id         Int         @id @default(autoincrement())
+  gamemode_id          Int
+  leaster_legal        Boolean?
+  automatic_double     Boolean?
+  chat_enabled         Boolean     @default(true)
+  players_permitted    user_groups @default(EVERYONE)
+  spectators_permitted user_groups @default(EVERYONE)
+  datetime_created     DateTime    @default(now()) @db.Timestamp(6)
+  gamemodes            gamemodes   @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model games {
   game_id          Int       @id @default(autoincrement())
-  gamemode_id      Int
+  leaster          Boolean?
   called_ace       String?   @db.Char(2)
-  good_guys_win    Boolean
+  opposition_win   Boolean
   winning_score    Int       @db.SmallInt
   datetime_created DateTime  @default(now()) @db.Timestamp(6)
   cards            cards?    @relation(fields: [called_ace], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
-  gamemodes        gamemodes @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
   players          players[]
   rounds           rounds[]
 }
@@ -64,11 +74,10 @@ model games {
 model players {
   user_id      Int
   game_id      Int
-  player_index Int     @db.SmallInt
-  good_guy     Boolean @default(false)
-  picker       Boolean @default(false)
-  games        games   @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
-  users        users   @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  player_index Int        @db.SmallInt
+  role         game_roles
+  games        games      @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  users        users      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, game_id])
 }
@@ -99,14 +108,16 @@ model turns {
 }
 
 model user_configs {
-  user_config_id          Int         @id @default(autoincrement()) // just use user_id as id? // nonnegative int?
-  user_id                 Int         @unique
-  lifetime_score_visible  Boolean     @default(true)
-  friend_requests_enabled Boolean     @default(true)
-  game_chat_enabled       Boolean     @default(true)
-  safe_chat_enabled       Boolean     @default(false)
-  app_theme               color_theme @default(system)
-  users                   users       @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  // user_config_id          Int          @id @default(autoincrement()) // just use user_id as id? // nonnegative int?
+  user_id                 Int          @id
+  lifetime_score_visible  Boolean      @default(true)
+  friend_requests_enabled Boolean      @default(true)
+  game_chat_enabled       Boolean      @default(true)
+  safe_chat_enabled       Boolean      @default(false)
+  app_theme               color_themes @default(SYSTEM)
+  left_fielder            Boolean      @default(true)
+  right_fielder           Boolean      @default(false)
+  users                   users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 }
 
 model users {
@@ -115,9 +126,9 @@ model users {
   email                                               String            @unique @db.VarChar(128)
   password                                            String            @db.VarChar(256)
   display_name                                        String?           @db.VarChar(32)
-  display_city                                        String?           @db.VarChar(64)
-  display_region                                      String?           @db.VarChar(64)
-  display_country                                     String?           @db.VarChar(64)
+  display_city                                        String?           @db.VarChar(32)
+  display_region                                      String?           @db.VarChar(32)
+  display_country                                     String?           @db.VarChar(32)
   bio                                                 String?           @db.VarChar(256)
   games_played                                        Int?              @default(0)
   lifetime_score                                      Int?              @default(0)
@@ -130,6 +141,7 @@ model users {
   rounds                                              rounds[]
   turns                                               turns[]
   user_configs                                        user_configs?
+  users_banned                                        users_banned?
 }
 
 model users_banned {
@@ -138,10 +150,23 @@ model users_banned {
   email            String   @unique @db.VarChar(128)
   reason           String?  @db.VarChar(256)
   datetime_created DateTime @default(now()) @db.Timestamp(6)
+  users            users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-enum color_theme {
-  light
-  dark
-  system
+enum color_themes {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum user_groups {
+  INVITEES_ONLY
+  MY_FRIENDS
+  EVERYONE
+}
+
+enum game_roles {
+  PICKER
+  PARTNER
+  OPPOSITION
 }

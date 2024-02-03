@@ -1,5 +1,5 @@
-import { prisma } from "../utils/prismaClient";
 import { Request, Response } from "express";
+import { prisma } from "../utils/prismaClient";
 
 // Get a user record from a username
 export async function getUserByUsername(username: string) {
