@@ -13,8 +13,8 @@ model cards {
   suit      String  @db.Char(1)
   power     Int     @db.SmallInt
   points    Int     @db.SmallInt
-  games     games[]
-  turns     turns[]
+  hands     hands[]
+  plays     plays[]
 }
 
 model friend_requests {
@@ -34,7 +34,7 @@ model friends {
   datetime_created               DateTime @default(now()) @db.Timestamp(6)
   users_friends_user_1_idTousers users    @relation("friends_user_1_idTousers", fields: [user_1_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   users_friends_user_2_idTousers users    @relation("friends_user_2_idTousers", fields: [user_2_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  // CHECK from_user_id != to_user_id
+  // CHECK user_1_id < user_2_id
 
   @@id([user_1_id, user_2_id])
 }
@@ -59,8 +59,8 @@ model gatherings {
   gamemodes            gamemodes   @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
-model games {
-  game_id          Int       @id @default(autoincrement())
+model hands {
+  hand_id          Int       @id @default(autoincrement())
   leaster          Boolean?
   called_ace       String?   @db.Char(2)
   opposition_win   Boolean
@@ -68,51 +68,50 @@ model games {
   datetime_created DateTime  @default(now()) @db.Timestamp(6)
   cards            cards?    @relation(fields: [called_ace], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
   players          players[]
-  rounds           rounds[]
+  tricks           tricks[]
 }
 
 model players {
   user_id      Int
-  game_id      Int
+  hand_id      Int
   player_index Int        @db.SmallInt
-  role         game_roles
-  games        games      @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  role         hand_roles
+  hands        hands      @relation(fields: [hand_id], references: [hand_id], onDelete: NoAction, onUpdate: NoAction)
   users        users      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([user_id, game_id])
+  @@id([user_id, hand_id])
 }
 
-model rounds {
-  game_id     Int
-  round_index Int     @db.SmallInt
+model tricks {
+  hand_id     Int
+  trick_index Int     @db.SmallInt
   winner      Int
   points_won  Int     @db.SmallInt
-  games       games   @relation(fields: [game_id], references: [game_id], onDelete: NoAction, onUpdate: NoAction)
+  hands       hands   @relation(fields: [hand_id], references: [hand_id], onDelete: NoAction, onUpdate: NoAction)
   users       users   @relation(fields: [winner], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  turns       turns[]
+  plays       plays[]
 
-  @@id([game_id, round_index])
+  @@id([hand_id, trick_index])
 }
 
-model turns {
-  game_id     Int
-  round_index Int    @db.SmallInt
-  turn_index  Int    @db.SmallInt
+model plays {
+  hand_id     Int
+  trick_index Int    @db.SmallInt
+  play_index  Int    @db.SmallInt
   user_id     Int    @db.SmallInt
   card_code   String @db.Char(2)
   cards       cards  @relation(fields: [card_code], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
-  rounds      rounds @relation(fields: [game_id, round_index], references: [game_id, round_index], onDelete: NoAction, onUpdate: NoAction)
+  tricks      tricks @relation(fields: [hand_id, trick_index], references: [hand_id, trick_index], onDelete: NoAction, onUpdate: NoAction)
   users       users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([game_id, round_index, turn_index])
+  @@id([hand_id, trick_index, play_index])
 }
 
 model user_configs {
-  // user_config_id          Int          @id @default(autoincrement()) // just use user_id as id? // nonnegative int?
   user_id                 Int          @id
   lifetime_score_visible  Boolean      @default(true)
   friend_requests_enabled Boolean      @default(true)
-  game_chat_enabled       Boolean      @default(true)
+  gathering_chat_enabled  Boolean      @default(true)
   safe_chat_enabled       Boolean      @default(false)
   app_theme               color_themes @default(SYSTEM)
   left_fielder            Boolean      @default(true)
@@ -130,7 +129,7 @@ model users {
   display_region                                      String?           @db.VarChar(32)
   display_country                                     String?           @db.VarChar(32)
   bio                                                 String?           @db.VarChar(256)
-  games_played                                        Int?              @default(0)
+  hands_played                                        Int?              @default(0)
   lifetime_score                                      Int?              @default(0)
   datetime_created                                    DateTime          @default(now()) @db.Timestamp(6)
   friend_requests_friend_requests_from_user_idTousers friend_requests[] @relation("friend_requests_from_user_idTousers")
@@ -138,8 +137,8 @@ model users {
   friends_friends_user_1_idTousers                    friends[]         @relation("friends_user_1_idTousers")
   friends_friends_user_2_idTousers                    friends[]         @relation("friends_user_2_idTousers")
   players                                             players[]
-  rounds                                              rounds[]
-  turns                                               turns[]
+  tricks                                              tricks[]
+  plays                                               plays[]
   user_configs                                        user_configs?
   users_banned                                        users_banned?
 }
@@ -165,7 +164,7 @@ enum user_groups {
   EVERYONE
 }
 
-enum game_roles {
+enum hand_roles {
   PICKER
   PARTNER
   OPPOSITION
