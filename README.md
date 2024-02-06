@@ -1,21 +1,32 @@
 # Sheepshead Online
 
-[![GitHub License](https://img.shields.io/github/license/reednel/sheepshead?color=red)](https://github.com/reednel/sheepshead/blob/main/LICENSE) [![Repo Size](https://img.shields.io/github/repo-size/reednel/sheepshead)](https://github.com/reednel/sheepshead)
+![GitHub Release](https://img.shields.io/github/v/release/reednel/sheepshead-online) [![GitHub License](https://img.shields.io/github/license/reednel/sheepshead-online?color=purple)](https://github.com/reednel/sheepshead-online/blob/main/LICENSE) [![Repo Size](https://img.shields.io/github/repo-size/reednel/sheepshead-online)](https://github.com/reednel/sheepshead-online) ![GitHub issues](https://img.shields.io/github/issues/reednel/sheepshead-online) ![Discord](https://img.shields.io/discord/0000000)
 
-An (aspiring) online Sheepshead player.
+A free and open source PWA for the card game Sheepshead. Or, it will be soon.
 
 ## Development Instructions
 
-Clone: `git clone https://github.com/reednel/sheepshead.git`
+Clone: `git clone https://github.com/reednel/sheepshead-online.git`
 
 Checkout the development branch: `git checkout develop`
 
 With Docker installed and running: `docker-compose up`
 
-## Contributions, Questions, Issues, and Feedback
+## Contributing
 
-Users interested in expanding functionalities in Sheepshead Online are welcome to do so. Issues reports are encouraged through Github's [issue tracker](https://github.com/reednel/sheepshead-online/issues). See details on how to contribute and report issues in [CONTRIBUTING.md](https://github.com/reednel/sheepshead-online/blob/master/CONTRIBUTING.md).
+Users interested in expanding functionalities in Sheepshead Online are welcome to do so. Issues reports are encouraged through Github's [issue tracker](https://github.com/reednel/sheepshead-online/issues). See details on how to contribute and report issues in [CONTRIBUTING.md](CONTRIBUTING.md). All contributors are expected to adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## License
 
-This software is licensed under the [GNU AGPLv3](LICENSE).
+This software is licensed under the [AGPL-3.0 license](LICENSE).
+
+## Acknowledgements
+
+We owe a big thanks to all the free and open source projects that make Sheepshead Online run.
+
+- [Express](https://github.com/expressjs)
+- [Node](https://github.com/nodejs)
+- [Ory](https://github.com/ory)
+- [Postgres](https://github.com/postgres)
+- [Prisma](https://github.com/prisma)
+- [Redis](https://github.com/redis)
