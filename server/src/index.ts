@@ -8,8 +8,8 @@ app.use(express.json());
 app.use(userRoutes);
 app.use(friendRoutes);
 
-app.listen(3000, () =>
-  console.log("Sheepshead Online server ready at: http://localhost:3000")
+app.listen(4000, () =>
+  console.log("Sheepshead Online server ready at: http://localhost:4000")
 );
 
 // app.post(`/games`, async (req, res) => {

@@ -1,0 +1,54 @@
+version: "3"
+services:
+  client:
+    build: ./client
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/src:/usr/src/app/src
+    depends_on:
+      - server
+
+  server:
+    build: ./server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./server/src:/usr/src/app/src
+    depends_on:
+      - db
+      - redis
+
+  kratos:
+    build: ./kratos
+    ports:
+      - "4433:4433"
+      - "4434:4434"
+
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: sheepshead
+      POSTGRES_USER: reednel
+      POSTGRES_PASSWORD: testpw
+
+  prisma-migrate:
+    image: node:latest
+    volumes:
+      - ./server:/app
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgresql://reednel:testpw@localhost:5432/sheepshead?schema=public
+    command: npx prisma migrate deploy
+    depends_on:
+      - db
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  db-data:
