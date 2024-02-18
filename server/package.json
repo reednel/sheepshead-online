@@ -1,9 +1,10 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "Sheepshead Server",
-  "main": "index.js",
+  "description": "Sheepshead App Server",
+  "main": "index.ts",
   "scripts": {
+    "start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "reednel",

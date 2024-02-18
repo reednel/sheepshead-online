@@ -32,3 +32,4 @@ node_modules
 # Additonal
 .vscode
 .DS_Store
+data

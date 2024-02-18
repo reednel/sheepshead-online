@@ -1,54 +1,61 @@
-version: "3"
+version: "3.8"
 services:
-  client:
-    build: ./client
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./client/src:/usr/src/app/src
-    depends_on:
-      - server
+  # client:
+  #   build: ./client
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./client/src:/usr/src/app/src
+  #   depends_on:
+  #     - app-server
 
-  server:
+  app-server:
     build: ./server
     ports:
       - "4000:4000"
     volumes:
-      - ./server/src:/usr/src/app/src
+      - ./server:/server
     depends_on:
-      - db
-      - redis
+      - app-db
+      # - redis
 
-  kratos:
-    build: ./kratos
-    ports:
-      - "4433:4433"
-      - "4434:4434"
-
-  db:
-    image: postgres
+  app-db:
+    image: postgres:16
+    restart: always
     volumes:
-      - ./data/db:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: sheepshead
-      POSTGRES_USER: reednel
-      POSTGRES_PASSWORD: testpw
-
-  prisma-migrate:
-    image: node:latest
-    volumes:
-      - ./server:/app
-    working_dir: /app
-    environment:
-      DATABASE_URL: postgresql://reednel:testpw@localhost:5432/sheepshead?schema=public
-    command: npx prisma migrate deploy
-    depends_on:
-      - db
-
-  redis:
-    image: redis
+      - ./data/app-db:/var/lib/postgresql/data
     ports:
-      - "6379:6379"
+      - 5432:5432
+    environment:
+      POSTGRES_DB: ${APPDB_NAME}
+      POSTGRES_USER: ${APPDB_USER}
+      POSTGRES_PASSWORD: ${APPDB_PASSWORD}
 
-volumes:
-  db-data:
+  # redis:
+  #   image: redis
+  #   ports:
+  #     - "6379:6379"
+
+  # kratos-server:
+  #   image: oryd/kratos:v1.0.0
+  #   ports:
+  #     - "4433:4433" # public
+  #     - "4434:4434" # admin
+  #   volumes:
+  #     - type: bind
+  #       source: ./kratos/kratos.yml
+  #       target: /etc/config/kratos-server
+  #   command: serve -c /etc/config/kratos-server/kratos.yml --watch-courier --dev
+  #   depends_on:
+  #     - kratos-db
+
+  # kratos-db:
+  #   image: postgres
+  #   volumes:
+  #     - ./data/kratos-db:/var/lib/postgresql/data
+  #   environment:
+  #     POSTGRES_DB: kratosdb
+  #     POSTGRES_USER: reednel
+  #     POSTGRES_PASSWORD: testpw
+# volumes:
+#   db-data:
