@@ -1,14 +1,14 @@
 {
   "name": "server",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Sheepshead App Server",
+  "author": "reednel",
+  "license": "GNU AGPLv3",
   "main": "index.ts",
   "scripts": {
     "start": "ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "reednel",
-  "license": "GNU AGPLv3",
   "dependencies": {
     "@ory/cli": "^0.3.2",
     "@ory/client": "^1.5.2",

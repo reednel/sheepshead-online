@@ -1,20 +1,22 @@
 version: "3.8"
 services:
-  # client:
-  #   build: ./client
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./client/src:/usr/src/app/src
-  #   depends_on:
-  #     - app-server
+  client:
+    build: ./client
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - app-server
 
   app-server:
     build: ./server
     ports:
       - "4000:4000"
     volumes:
-      - ./server:/server
+      - ./server:/app
+      - /app/node_modules
     depends_on:
       - app-db
       # - redis

@@ -1,12 +1,9 @@
 FROM node:20
 
-WORKDIR /server
+WORKDIR /app
 COPY package*.json .
 RUN npm install
 COPY . .
-
-# Build the app
-# RUN ...
 
 EXPOSE 4000
 

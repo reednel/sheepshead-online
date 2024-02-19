@@ -1,15 +1,10 @@
-# client/Dockerfile
-
 FROM node:20
 
-WORKDIR /src
-COPY package*.json ./
+WORKDIR /app
+COPY package*.json .
 RUN npm install
 COPY . .
 
-# Build the app
-# RUN ...
-
-EXPOSE 3000
+EXPOSE 4200
 
 CMD [ "npm", "start" ]

@@ -22,9 +22,12 @@ This software is licensed under the [AGPL-3.0 license](LICENSE).
 
 ## Acknowledgements
 
-We owe a big thanks to all the free and open source projects that make Sheepshead Online run.
+We owe a big thanks to all the projects that make Sheepshead Online run.
 
+- [Angular](https://github.com/angular)
+- [Docker](https://github.com/docker)
 - [Express](https://github.com/expressjs)
+- [Ionic](https://github.com/ionic-team)
 - [Node](https://github.com/nodejs)
 - [Ory](https://github.com/ory)
 - [Postgres](https://github.com/postgres)
