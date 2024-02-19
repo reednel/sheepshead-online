@@ -1,6 +1,6 @@
 # Sheepshead Online
 
-![GitHub Release](https://img.shields.io/github/v/release/reednel/sheepshead-online) [![GitHub License](https://img.shields.io/github/license/reednel/sheepshead-online?color=purple)](https://github.com/reednel/sheepshead-online/blob/main/LICENSE) [![Repo Size](https://img.shields.io/github/repo-size/reednel/sheepshead-online)](https://github.com/reednel/sheepshead-online) ![GitHub issues](https://img.shields.io/github/issues/reednel/sheepshead-online) ![Discord](https://img.shields.io/discord/0000000)
+![GitHub Release](https://img.shields.io/github/v/release/reednel/sheepshead-online) [![GitHub License](https://img.shields.io/github/license/reednel/sheepshead-online?color=purple)](https://github.com/reednel/sheepshead-online/blob/main/LICENSE) [![Repo Size](https://img.shields.io/github/repo-size/reednel/sheepshead-online)](https://github.com/reednel/sheepshead-online) ![GitHub issues](https://img.shields.io/github/issues/reednel/sheepshead-online)
 
 A free and open source PWA for the card game Sheepshead. Or, it will be soon.
 
