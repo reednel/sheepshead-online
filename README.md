@@ -10,7 +10,7 @@ Clone: `git clone https://github.com/reednel/sheepshead-online.git`
 
 Checkout the development branch: `git checkout develop`
 
-With Docker installed and running: `docker-compose up`
+With Docker installed and running: `docker compose up`
 
 ## Contributing
 
