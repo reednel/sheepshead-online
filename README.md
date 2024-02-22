@@ -29,7 +29,7 @@ We owe a big thanks to all the projects that make Sheepshead Online run.
 - [Express](https://github.com/expressjs)
 - [Ionic](https://github.com/ionic-team)
 - [Node](https://github.com/nodejs)
-- [Ory](https://github.com/ory)
 - [Postgres](https://github.com/postgres)
 - [Prisma](https://github.com/prisma)
 - [Redis](https://github.com/redis)
+- [SuperTokens](https://github.com/supertokens)

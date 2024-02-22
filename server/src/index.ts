@@ -1,12 +1,13 @@
 import express from "express";
-import userRoutes from "./routes/userRoutes";
-import friendRoutes from "./routes/friendRoutes";
+import userRoutes from "./routes/user.routes";
+import friendRoutes from "./routes/friend.routes";
 
 const app = express();
 app.use(express.json());
 
 app.use(userRoutes);
 app.use(friendRoutes);
+app.disable("x-powered-by");
 
 app.listen(4000, () =>
   console.log("Sheepshead Online server ready at: http://localhost:4000")

@@ -37,27 +37,5 @@ services:
   #   image: redis
   #   ports:
   #     - "6379:6379"
-
-  # kratos-server:
-  #   image: oryd/kratos:v1.0.0
-  #   ports:
-  #     - "4433:4433" # public
-  #     - "4434:4434" # admin
-  #   volumes:
-  #     - type: bind
-  #       source: ./kratos/kratos.yml
-  #       target: /etc/config/kratos-server
-  #   command: serve -c /etc/config/kratos-server/kratos.yml --watch-courier --dev
-  #   depends_on:
-  #     - kratos-db
-
-  # kratos-db:
-  #   image: postgres
-  #   volumes:
-  #     - ./data/kratos-db:/var/lib/postgresql/data
-  #   environment:
-  #     POSTGRES_DB: kratosdb
-  #     POSTGRES_USER: reednel
-  #     POSTGRES_PASSWORD: testpw
 # volumes:
 #   db-data:

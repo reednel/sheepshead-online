@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../utils/prismaClient";
-import { getUserByUsername } from "./userController";
+import { getUserByUsername } from "./user.controller";
 
 // Send a friend request
 // Creates a friend request record
