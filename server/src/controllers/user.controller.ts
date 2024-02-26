@@ -17,7 +17,7 @@ export async function getUserByUsername(username: string) {
 // Create users record and user_configs record with all default values
 export async function createUser(req: Request, res: Response) {
   try {
-    const result = await prisma.$transaction(async (prisma) => {
+    const result = await prisma.$transaction(async (prisma: any) => {
       const user = await prisma.users.create({
         data: { ...req.body },
       });

@@ -19,4 +19,6 @@ npx ts-node src/index.ts
 
 redis-server
 redis-cli
+
+psql -U authuser -h auth-db -p 5679
 ```

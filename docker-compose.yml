@@ -3,7 +3,7 @@ services:
   client:
     build: ./client
     ports:
-      - "4200:4200"
+      - 4200:4200
     volumes:
       - ./client:/app
       - /app/node_modules
@@ -13,17 +13,19 @@ services:
   app-server:
     build: ./server
     ports:
-      - "4000:4000"
+      - 4000:4000
     volumes:
       - ./server:/app
       - /app/node_modules
+    networks:
+      - auth_network
     depends_on:
       - app-db
       # - redis
 
   app-db:
     image: postgres:16
-    restart: always
+    restart: unless-stopped
     volumes:
       - ./data/app-db:/var/lib/postgresql/data
     ports:
@@ -33,9 +35,61 @@ services:
       POSTGRES_USER: ${APPDB_USER}
       POSTGRES_PASSWORD: ${APPDB_PASSWORD}
 
-  # redis:
-  #   image: redis
-  #   ports:
-  #     - "6379:6379"
+  auth-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${AUTHDB_NAME} # supertokens
+      POSTGRES_USER: ${AUTHDB_USER} # supertokens_user
+      POSTGRES_PASSWORD: ${AUTHDB_PASSWORD} # somePassword
+    ports:
+      - 5679:5679
+    volumes:
+      - ./data/auth-db:/var/lib/postgresql/data
+    networks:
+      - auth_network
+    restart: unless-stopped
+    command: postgres -p 5679
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-U",
+          "${AUTHDB_USER}",
+          "-d",
+          "${AUTHDB_NAME}",
+          "-p",
+          "5679",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-server:
+    image: supertokens/supertokens-postgresql:7.0
+    depends_on:
+      auth-db:
+        condition: service_healthy
+    ports:
+      - 3567:3567
+    environment:
+      POSTGRESQL_CONNECTION_URI: ${AUTHDB_URL}
+    networks:
+      - auth_network
+    restart: unless-stopped
+    healthcheck:
+      test: >
+        bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  auth_network:
+    driver: bridge
+# redis:
+#   image: redis
+#   ports:
+#     - "6379:6379"
 # volumes:
 #   db-data:
