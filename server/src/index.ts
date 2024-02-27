@@ -8,11 +8,15 @@ import { errorHandler, middleware } from "supertokens-node/framework/express";
 
 import userRoutes from "./routes/user.routes";
 import friendRoutes from "./routes/friend.routes";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 supertokens.init({
   framework: "express",
   supertokens: {
-    connectionURI: "http://supertokens:3567",
+    connectionURI: "http://auth-server:3567",
+    apiKey: process.env.SUPERTOKENS_API_KEY,
   },
   appInfo: {
     // learn more about this on https://supertokens.com/docs/session/appinfo
@@ -22,7 +26,13 @@ supertokens.init({
     apiBasePath: "/auth",
     websiteBasePath: "/auth",
   },
-  recipeList: [Dashboard.init(), EmailPassword.init(), Session.init()],
+  recipeList: [
+    Dashboard.init({
+      admins: [process.env.SUPERTOKENS_EMAIL || ""],
+    }),
+    EmailPassword.init(),
+    Session.init(),
+  ],
 });
 
 const app = express();

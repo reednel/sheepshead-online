@@ -14,6 +14,8 @@ services:
     build: ./server
     ports:
       - 4000:4000
+    env_file:
+      - ./.env
     volumes:
       - ./server:/app
       - /app/node_modules
@@ -74,6 +76,7 @@ services:
       - 3567:3567
     environment:
       POSTGRESQL_CONNECTION_URI: ${AUTHDB_URL}
+      API_KEYS: ${SUPERTOKENS_API_KEY}
     networks:
       - auth_network
     restart: unless-stopped
