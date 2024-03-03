@@ -7,8 +7,6 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
-    networks:
-      - app-network
     depends_on:
       - app-server
 
@@ -24,9 +22,18 @@ services:
     networks:
       - app-network
       - auth-network
+      - cache-network
     depends_on:
+      - app-cache
       - app-db
-      # - redis
+
+  app-cache:
+    image: redis
+    ports:
+      - 6379:6379
+    networks:
+      - cache-network
+    restart: unless-stopped
 
   app-db:
     image: postgres:16
@@ -41,6 +48,7 @@ services:
       POSTGRES_PASSWORD: ${APPDB_PASSWORD}
     networks:
       - app-network
+      - pgadmin-network
 
   app-pgadmin:
     image: dpage/pgadmin4
@@ -51,7 +59,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${APPDB_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${APPDB_PASSWORD}
     networks:
-      - app-network
+      - pgadmin-network
     depends_on:
       - app-db
     volumes:
@@ -112,12 +120,12 @@ networks:
     driver: bridge
   auth-network:
     driver: bridge
+  cache-network:
+    driver: bridge
+  pgadmin-network:
+    driver: bridge
 
 volumes:
   app-db-data:
   app-pgadmin-data:
   auth-db-data:
-# redis:
-#   image: redis
-#   ports:
-#     - "6379:6379"
