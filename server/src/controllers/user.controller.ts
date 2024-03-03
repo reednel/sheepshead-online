@@ -9,7 +9,20 @@ export async function getUserByUsername(username: string) {
     });
     return user;
   } catch (error) {
-    console.error(`Error fetching user ID for username ${username}:`, error);
+    console.error(`Error fetching user for username ${username}:`, error);
+    throw error;
+  }
+}
+
+// Get a user record from a user ID
+export async function getUserById(user_id: number) {
+  try {
+    const user = await prisma.users.findUnique({
+      where: { user_id: user_id },
+    });
+    return user;
+  } catch (error) {
+    console.error(`Error fetching user for user ID ${user_id}:`, error);
     throw error;
   }
 }

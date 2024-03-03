@@ -7,6 +7,8 @@ services:
     volumes:
       - ./client:/app
       - /app/node_modules
+    networks:
+      - app-network
     depends_on:
       - app-server
 
@@ -20,7 +22,8 @@ services:
       - ./server:/app
       - /app/node_modules
     networks:
-      - auth_network
+      - app-network
+      - auth-network
     depends_on:
       - app-db
       # - redis
@@ -29,26 +32,43 @@ services:
     image: postgres:16
     restart: unless-stopped
     volumes:
-      - ./data/app-db:/var/lib/postgresql/data
+      - app-db-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
       POSTGRES_DB: ${APPDB_NAME}
       POSTGRES_USER: ${APPDB_USER}
       POSTGRES_PASSWORD: ${APPDB_PASSWORD}
+    networks:
+      - app-network
+
+  app-pgadmin:
+    image: dpage/pgadmin4
+    ports:
+      - 6432:80
+    environment:
+      PGADMIN_LISTEN_PORT: 80
+      PGADMIN_DEFAULT_EMAIL: ${APPDB_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${APPDB_PASSWORD}
+    networks:
+      - app-network
+    depends_on:
+      - app-db
+    volumes:
+      - app-pgadmin-data:/var/lib/pgadmin/data
 
   auth-db:
     image: postgres:16
     environment:
-      POSTGRES_DB: ${AUTHDB_NAME} # supertokens
-      POSTGRES_USER: ${AUTHDB_USER} # supertokens_user
-      POSTGRES_PASSWORD: ${AUTHDB_PASSWORD} # somePassword
+      POSTGRES_DB: ${AUTHDB_NAME}
+      POSTGRES_USER: ${AUTHDB_USER}
+      POSTGRES_PASSWORD: ${AUTHDB_PASSWORD}
     ports:
       - 5679:5679
     volumes:
-      - ./data/auth-db:/var/lib/postgresql/data
+      - auth-db-data:/var/lib/postgresql/data
     networks:
-      - auth_network
+      - auth-network
     restart: unless-stopped
     command: postgres -p 5679
     healthcheck:
@@ -78,7 +98,7 @@ services:
       POSTGRESQL_CONNECTION_URI: ${AUTHDB_URL}
       API_KEYS: ${SUPERTOKENS_API_KEY}
     networks:
-      - auth_network
+      - auth-network
     restart: unless-stopped
     healthcheck:
       test: >
@@ -88,11 +108,16 @@ services:
       retries: 5
 
 networks:
-  auth_network:
+  app-network:
     driver: bridge
+  auth-network:
+    driver: bridge
+
+volumes:
+  app-db-data:
+  app-pgadmin-data:
+  auth-db-data:
 # redis:
 #   image: redis
 #   ports:
 #     - "6379:6379"
-# volumes:
-#   db-data:

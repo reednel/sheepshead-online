@@ -6,11 +6,15 @@ A free and open source PWA for the card game Sheepshead. Or, it will be soon.
 
 ## Development Instructions
 
-Clone: `git clone https://github.com/reednel/sheepshead-online.git`
+> Note: this app requires [Docker](https://www.docker.com/get-started/)
 
-Checkout the development branch: `git checkout develop`
-
-With Docker installed and running: `docker compose up`
+1. Fork this repository and clone it to your machine
+2. Copy the `.env.template` file into the same directory, naming the copy `.env`
+3. Checkout the development branch: `git checkout develop`
+4. Spin up the Docker containers (this may take a few minutes): `docker compose up`
+5. Inside the `app-server` container, run:
+   1. `curl --location --request POST 'http://auth-server:3567/recipe/dashboard/user' --header 'rid: dashboard' --header 'api-key: supertokensapikey0123456789' --header 'Content-Type: application/json' --data-raw '{"email": "authuser@so.com", "password": "supertokenspw1"}'`
+   2. `npx prisma migrate dev --name init`
 
 ## Contributing
 

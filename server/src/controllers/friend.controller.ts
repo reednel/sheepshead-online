@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
+import { SessionRequest } from "supertokens-node/framework/express";
 import { prisma } from "../utils/prismaClient";
 import { getUserByUsername } from "./user.controller";
 
 // Send a friend request
 // Creates a friend request record
-export async function sendFriendRequest(req: Request, res: Response) {
+export async function sendFriendRequest(req: SessionRequest, res: Response) {
   // Get user record for the requesting user
   const { from_username } = req.params;
   const from_user = await getUserByUsername(from_username);

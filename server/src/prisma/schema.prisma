@@ -124,7 +124,6 @@ model users {
   user_id                                             Int               @id @default(autoincrement())
   username                                            String            @unique @db.VarChar(32)
   email                                               String            @unique @db.VarChar(128)
-  password                                            String            @db.VarChar(256)
   display_name                                        String?           @db.VarChar(32)
   display_city                                        String?           @db.VarChar(32)
   display_region                                      String?           @db.VarChar(32)
