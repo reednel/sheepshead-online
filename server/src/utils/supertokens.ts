@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 import SuperTokens from "supertokens-node";
 import Dashboard from "supertokens-node/recipe/dashboard";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
+import EmailVerification from "supertokens-node/recipe/emailverification";
 import Session from "supertokens-node/recipe/session";
-import supertokensTypes from "supertokens-node/types";
 import { RecipeUserId } from "supertokens-node";
 import { createUser, getUserByEmail } from "../controllers/user.controller";
 
@@ -109,6 +109,28 @@ SuperTokens.init({
                 );
 
                 // TODO: Send email verification
+              }
+              return response;
+            },
+          };
+        },
+      },
+    }),
+    EmailVerification.init({
+      mode: "REQUIRED", // or "OPTIONAL"
+      override: {
+        apis: (oI) => {
+          return {
+            ...oI,
+            verifyEmailPOST: async function (input) {
+              let response = await oI.verifyEmailPOST!(input);
+              if (response.status === "OK") {
+                // This will update the email of the user to the one
+                // that was just marked as verified by the token.
+                await EmailPassword.updateEmailOrPassword({
+                  recipeUserId: response.user.recipeUserId,
+                  email: response.user.email,
+                });
               }
               return response;
             },
