@@ -39,7 +39,7 @@ SuperTokens.init({
       signUpFeature: {
         formFields: [
           {
-            id: "email", // username, but SuperTokens needs it to be called email
+            id: "username",
             validate: async (value) => {
               if (typeof value !== "string") {
                 return "Please provide a string input.";
@@ -56,7 +56,7 @@ SuperTokens.init({
             },
           },
           {
-            id: "actualEmail",
+            id: "email",
             validate: async (value) => {
               if (!isEmail(value)) {
                 return "Email is invalid";
@@ -75,8 +75,8 @@ SuperTokens.init({
           return {
             ...originalImplementation,
             signUpPOST: async function (input) {
-              input.userContext.actualEmail = input.formFields.find(
-                (i) => i.id === "actualEmail"
+              input.userContext.username = input.formFields.find(
+                (i) => i.id === "username"
               )!.value;
               let response = await originalImplementation.signUpPOST!(input);
               return response;
@@ -93,8 +93,8 @@ SuperTokens.init({
                 response.user.loginMethods.length === 1
               ) {
                 // Create user in app-db
-                const app_username = response.user.emails[0];
-                const app_email = input.userContext.actualEmail;
+                const app_username = input.userContext.username;
+                const app_email = response.user.emails[0];
                 const app_user = await createUser(app_username, app_email); // TODO: add exception handling
                 console.log("app_user:", app_user); // DEBUG
 
@@ -109,7 +109,7 @@ SuperTokens.init({
                   app_user_id
                 );
 
-                // TODO: Send email verification
+                // TODO?: Send email verification
               }
               return response;
             },
