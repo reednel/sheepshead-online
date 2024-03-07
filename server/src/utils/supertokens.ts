@@ -67,6 +67,7 @@ SuperTokens.init({
               // TODO: Verify email is not on the blocklist
             },
           },
+          // TODO?: Add password validation
         ],
       },
       override: {
@@ -125,13 +126,12 @@ SuperTokens.init({
             verifyEmailPOST: async function (input) {
               let response = await oI.verifyEmailPOST!(input);
               if (response.status === "OK") {
-                // This will update the email of the user to the one
-                // that was just marked as verified by the token.
                 await EmailPassword.updateEmailOrPassword({
                   recipeUserId: response.user.recipeUserId,
                   email: response.user.email,
                 });
               }
+              // TODO?: update email in app db
               return response;
             },
           };
