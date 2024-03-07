@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { SessionRequest } from "supertokens-node/framework/express";
 import { prisma } from "../utils/prisma";
 import { deleteUser as deleteAuthUser } from "supertokens-node";
 
@@ -45,19 +46,19 @@ export async function getUserByEmail(email: string) {
 export async function createUser(
   username: string,
   email: string
-): Promise<string> {
+): Promise<any> {
+  // TODO: add return type
   try {
-    let user = null;
+    let user;
     await prisma.$transaction(async (prisma: any) => {
       user = await prisma.users.create({
         data: { username: username, email: email },
       });
-      console.log("user:", user); // DEBUG
       const userConfig = await prisma.user_configs.create({
         data: { user_id: user.user_id },
       });
     });
-    return user!.user_id.toString();
+    return user;
   } catch (error) {
     console.error("Error creating user:", error);
     throw error;
@@ -67,7 +68,7 @@ export async function createUser(
 // Delete user record
 // Cascades to user_configs, friends, and friend_requests
 // Also deletes the user from the auth database
-export async function deleteUser(req: Request, res: Response) {
+export async function deleteUser(req: SessionRequest, res: Response) {
   const { username } = req.params;
   const user = await getUserByUsername(username);
 
@@ -83,12 +84,34 @@ export async function deleteUser(req: Request, res: Response) {
       });
 
       await deleteAuthUser(user.user_id.toString());
-      // await deleteAuthUser("0683f15c-f10e-404f-a228-a4ce01369b59");
     });
 
     res.json({ message: "User deleted" });
   } catch (error) {
     console.error(`Error deleting user:`, error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Change user email
+export async function changeEmail(req: Request, res: Response) {
+  const { email } = req.body;
+  const user = await getUserById(res.locals.session.userId);
+
+  if (!user) {
+    res.status(404).json({ message: "User not found" });
+    return;
+  }
+
+  try {
+    await prisma.users.update({
+      where: { user_id: user.user_id },
+      data: { email: email },
+    });
+
+    res.json({ message: "Email updated" });
+  } catch (error) {
+    console.error(`Error updating email:`, error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
