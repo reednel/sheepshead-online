@@ -1,39 +1,13 @@
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import supertokens from "supertokens-node";
-import Dashboard from "supertokens-node/recipe/dashboard";
-import EmailPassword from "supertokens-node/recipe/emailpassword";
-import Session from "supertokens-node/recipe/session";
 import { errorHandler, middleware } from "supertokens-node/framework/express";
-
 import userRoutes from "./routes/user.routes";
 import friendRoutes from "./routes/friend.routes";
-import dotenv from "dotenv";
+import "./utils/supertokens";
 
 dotenv.config();
-
-supertokens.init({
-  framework: "express",
-  supertokens: {
-    connectionURI: "http://auth-server:3567",
-    apiKey: process.env.SUPERTOKENS_API_KEY,
-  },
-  appInfo: {
-    // learn more about this on https://supertokens.com/docs/session/appinfo
-    appName: "sheepshead-online",
-    apiDomain: "http://localhost:4000",
-    websiteDomain: "http://localhost:4200",
-    apiBasePath: "/auth",
-    websiteBasePath: "/auth",
-  },
-  recipeList: [
-    Dashboard.init({
-      admins: [process.env.SUPERTOKENS_EMAIL || ""],
-    }),
-    EmailPassword.init(),
-    Session.init(),
-  ],
-});
 
 const app = express();
 app.use(express.json());

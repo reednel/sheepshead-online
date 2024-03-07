@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { SessionRequest } from "supertokens-node/framework/express";
-import { prisma } from "../utils/prismaClient";
+import { prisma } from "../utils/prisma";
 import { getUserByUsername } from "./user.controller";
 
 // Send a friend request
