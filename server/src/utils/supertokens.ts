@@ -5,7 +5,11 @@ import EmailPassword from "supertokens-node/recipe/emailpassword";
 import EmailVerification from "supertokens-node/recipe/emailverification";
 import Session from "supertokens-node/recipe/session";
 import { RecipeUserId } from "supertokens-node";
-import { createUser, getUserByEmail } from "../controllers/user.controller";
+import {
+  createUser,
+  getUserByEmail,
+  isBannedEmail,
+} from "../controllers/user.controller";
 
 dotenv.config();
 
@@ -24,7 +28,6 @@ SuperTokens.init({
     apiKey: process.env.SUPERTOKENS_API_KEY,
   },
   appInfo: {
-    // learn more about this on https://supertokens.com/docs/session/appinfo
     appName: "sheepshead-online",
     apiDomain: "http://localhost:4000",
     websiteDomain: "http://localhost:4200",
@@ -64,7 +67,9 @@ SuperTokens.init({
               if (await getUserByEmail(value)) {
                 return "Email already in use. Please sign in, or use another email";
               }
-              // TODO: Verify email is not on the blocklist
+              if (await isBannedEmail(value)) {
+                return "Email is banned";
+              }
             },
           },
           // TODO?: Add password validation
@@ -95,7 +100,8 @@ SuperTokens.init({
                 // Create user in app-db
                 const app_username = input.userContext.username;
                 const app_email = response.user.emails[0];
-                const app_user = await createUser(app_username, app_email); // TODO: add exception handling
+
+                const app_user = await createUser(app_username, app_email);
                 console.log("app_user:", app_user); // DEBUG
 
                 // Map auth user_id to app user_id

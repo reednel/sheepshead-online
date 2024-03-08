@@ -15,6 +15,14 @@ function isValidEmail(email: string) {
   return regexp.test(email);
 }
 
+// Check if an email is banned
+export async function isBannedEmail(email: string) {
+  let bannedEmails = await prisma.users_banned.findMany({
+    where: { email: email },
+  });
+  return bannedEmails.length > 0;
+}
+
 // Get a user record from a username
 export async function getUserByUsername(username: string) {
   try {
@@ -113,6 +121,11 @@ export async function changeEmail(req: SessionRequest, res: Response) {
   // Validate the input email
   if (!isValidEmail(email)) {
     return res.status(400).send("Email is invalid");
+  }
+
+  // Check if email is banned
+  if (await isBannedEmail(email)) {
+    return res.status(400).send("Email is banned");
   }
 
   // Check that the email is verified for this user ID
