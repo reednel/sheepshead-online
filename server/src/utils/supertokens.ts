@@ -72,7 +72,20 @@ SuperTokens.init({
               }
             },
           },
-          // TODO?: Add password validation
+          {
+            id: "password",
+            validate: async (value) => {
+              if (typeof value !== "string") {
+                return "Please provide a string input.";
+              }
+              if (value.length < 8) {
+                return "Passwords must be at least 8 characters long.";
+              }
+              if (value.length > 128) {
+                return "Passwords may be at most 128 characters long.";
+              }
+            },
+          },
         ],
       },
       override: {
@@ -102,7 +115,7 @@ SuperTokens.init({
                 const app_email = response.user.emails[0];
 
                 const app_user = await createUser(app_username, app_email);
-                console.log("app_user:", app_user); // DEBUG
+                // console.log("app_user:", app_user); // DEBUG
 
                 // Map auth user_id to app user_id
                 const app_user_id = app_user!.user_id.toString();
@@ -114,7 +127,6 @@ SuperTokens.init({
                 response.user.loginMethods[0].recipeUserId = new RecipeUserId(
                   app_user_id
                 );
-
                 // TODO?: Send email verification
               }
               return response;
