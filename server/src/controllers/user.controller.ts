@@ -1,20 +1,17 @@
 import { Response } from "express";
-import { prisma } from "../utils/prisma";
+import { users } from "@prisma/client";
 import SuperTokens from "supertokens-node";
 import Session from "supertokens-node/recipe/session";
 import { deleteUser as deleteAuthUser } from "supertokens-node";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import EmailVerification from "supertokens-node/recipe/emailverification";
 import { SessionRequest } from "supertokens-node/framework/express";
-import { users } from "@prisma/client";
-
-// Check if an email is valid
-function isValidEmail(email: string) {
-  let regexp = new RegExp(
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  );
-  return regexp.test(email);
-}
+import { prisma } from "../utils/prisma";
+import {
+  isValidEmail,
+  isValidUserID,
+  isValidUsername,
+} from "../utils/validation";
 
 // Check if an email is banned
 export async function isBannedEmail(email: string) {
@@ -33,7 +30,7 @@ export async function isBannedEmail(email: string) {
 export async function getUserByUsername(
   username: string
 ): Promise<users | null> {
-  if (!username || typeof username !== "string") {
+  if (!isValidUsername(username)) {
     throw new Error("Invalid username input");
   }
 
@@ -62,7 +59,7 @@ export async function getUserByUsername(
  */
 export async function getUserByUserId(user_id: number): Promise<users | null> {
   // Input validation (simple example, can be more complex)
-  if (!user_id || typeof user_id !== "number") {
+  if (!isValidUserID(user_id)) {
     throw new Error("Invalid user_id input");
   }
 
@@ -90,8 +87,7 @@ export async function getUserByUserId(user_id: number): Promise<users | null> {
  * @throws {Error} Throws an error for database issues, invalid input, etc.
  */
 export async function getUserByEmail(email: string): Promise<users | null> {
-  // Input validation (simple example, can be more complex)
-  if (!email || typeof email !== "string") {
+  if (!isValidEmail(email)) {
     throw new Error("Invalid email input");
   }
 
@@ -116,10 +112,9 @@ export async function getUserByEmail(email: string): Promise<users | null> {
 export async function createUser(
   username: string,
   email: string
-): Promise<any> {
-  // TODO: add return type
+): Promise<users | null> {
   try {
-    let user;
+    let user = null;
     await prisma.$transaction(async (prisma: any) => {
       user = await prisma.users.create({
         data: { username: username, email: email },
@@ -141,7 +136,7 @@ export async function createUser(
 export async function deleteUser(req: SessionRequest, res: Response) {
   const username = req.body.username;
 
-  if (!username || typeof username !== "string") {
+  if (!isValidUsername(username)) {
     res.status(400).json({ message: "Invalid username" });
     return;
   }
@@ -156,7 +151,6 @@ export async function deleteUser(req: SessionRequest, res: Response) {
     return;
   }
 
-  console.log("user!:", user); // DEBUG
   if (!user) {
     res
       .status(404)

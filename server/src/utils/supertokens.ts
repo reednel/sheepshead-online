@@ -10,16 +10,13 @@ import {
   getUserByEmail,
   isBannedEmail,
 } from "../controllers/user.controller";
+import {
+  isValidEmail,
+  isValidPassword,
+  isValidUsername,
+} from "../utils/validation";
 
 dotenv.config();
-
-function isEmail(input: string): boolean {
-  return (
-    input.match(
-      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    ) !== null
-  );
-}
 
 SuperTokens.init({
   debug: true,
@@ -45,24 +42,15 @@ SuperTokens.init({
           {
             id: "username",
             validate: async (value) => {
-              if (typeof value !== "string") {
-                return "Please provide a string input.";
-              }
-              if (value.length < 3) {
-                return "Usernames must be at least 3 characters long.";
-              }
-              if (value.length > 32) {
-                return "Usernames may be at most 32 characters long.";
-              }
-              if (!value.match(/^[a-z0-9_-]+$/)) {
-                return "Username must contain only alphanumeric, underscore or hyphen characters.";
+              if (!isValidUsername(value)) {
+                return "Username is invalid";
               }
             },
           },
           {
             id: "email",
             validate: async (value) => {
-              if (!isEmail(value)) {
+              if (!isValidEmail(value)) {
                 return "Email is invalid";
               }
               if (await getUserByEmail(value)) {
@@ -76,14 +64,8 @@ SuperTokens.init({
           {
             id: "password",
             validate: async (value) => {
-              if (typeof value !== "string") {
-                return "Please provide a string input.";
-              }
-              if (value.length < 8) {
-                return "Passwords must be at least 8 characters long.";
-              }
-              if (value.length > 128) {
-                return "Passwords may be at most 128 characters long.";
+              if (!isValidPassword(value)) {
+                return "Password is invalid";
               }
             },
           },
