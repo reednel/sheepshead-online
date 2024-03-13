@@ -22,6 +22,7 @@ function isEmail(input: string): boolean {
 }
 
 SuperTokens.init({
+  debug: true,
   framework: "express",
   supertokens: {
     connectionURI: "http://auth-server:3567",
@@ -136,7 +137,7 @@ SuperTokens.init({
       },
     }),
     EmailVerification.init({
-      mode: "REQUIRED", // or "OPTIONAL"
+      mode: "OPTIONAL", // or "REQUIRED"
       override: {
         apis: (oI) => {
           return {

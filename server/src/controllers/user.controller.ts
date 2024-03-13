@@ -6,6 +6,7 @@ import { deleteUser as deleteAuthUser } from "supertokens-node";
 import EmailPassword from "supertokens-node/recipe/emailpassword";
 import EmailVerification from "supertokens-node/recipe/emailverification";
 import { SessionRequest } from "supertokens-node/framework/express";
+import { users } from "@prisma/client";
 
 // Check if an email is valid
 function isValidEmail(email: string) {
@@ -23,12 +24,29 @@ export async function isBannedEmail(email: string) {
   return bannedEmails.length > 0;
 }
 
-// Get a user record from a username
-export async function getUserByUsername(username: string) {
+/**
+ * Get a user record by username.
+ * @param {string} username - The username to search for.
+ * @returns {Promise<users|null>} The user object if found, or null if not found.
+ * @throws {Error} Throws an error for database issues, invalid input, etc.
+ */
+export async function getUserByUsername(
+  username: string
+): Promise<users | null> {
+  if (!username || typeof username !== "string") {
+    throw new Error("Invalid username input");
+  }
+
   try {
     const user = await prisma.users.findUnique({
       where: { username: username },
     });
+
+    if (!user) {
+      console.warn(`User not found for username: ${username}`);
+      return null;
+    }
+
     return user;
   } catch (error) {
     console.error(`Error fetching user for username ${username}:`, error);
@@ -36,25 +54,57 @@ export async function getUserByUsername(username: string) {
   }
 }
 
-// Get a user record from a user ID
-export async function getUserById(user_id: number) {
+/**
+ * Get a user record by user_id.
+ * @param {string} user_id - The user_id to search for.
+ * @returns {Promise<users|null>} The user object if found, or null if not found.
+ * @throws {Error} Throws an error for database issues, invalid input, etc.
+ */
+export async function getUserByUserId(user_id: number): Promise<users | null> {
+  // Input validation (simple example, can be more complex)
+  if (!user_id || typeof user_id !== "number") {
+    throw new Error("Invalid user_id input");
+  }
+
   try {
     const user = await prisma.users.findUnique({
       where: { user_id: user_id },
     });
+
+    if (!user) {
+      console.warn(`User not found for user_id: ${user_id}`);
+      return null;
+    }
+
     return user;
   } catch (error) {
-    console.error(`Error fetching user for user ID ${user_id}:`, error);
+    console.error(`Error fetching user for user_id ${user_id}:`, error);
     throw error;
   }
 }
 
-// Get a user record from an email
-export async function getUserByEmail(email: string) {
+/**
+ * Get a user record by email.
+ * @param {string} email - The email to search for.
+ * @returns {Promise<users|null>} The user object if found, or null if not found.
+ * @throws {Error} Throws an error for database issues, invalid input, etc.
+ */
+export async function getUserByEmail(email: string): Promise<users | null> {
+  // Input validation (simple example, can be more complex)
+  if (!email || typeof email !== "string") {
+    throw new Error("Invalid email input");
+  }
+
   try {
     const user = await prisma.users.findUnique({
       where: { email: email },
     });
+
+    if (!user) {
+      console.warn(`User not found for email: ${email}`);
+      return null;
+    }
+
     return user;
   } catch (error) {
     console.error(`Error fetching user for email ${email}:`, error);
@@ -89,21 +139,38 @@ export async function createUser(
 // Cascades to user_configs, friends, and friend_requests
 // Also deletes the user from the auth database
 export async function deleteUser(req: SessionRequest, res: Response) {
-  const { username } = req.params;
-  const user = await getUserByUsername(username);
+  const username = req.body.username;
 
+  if (!username || typeof username !== "string") {
+    res.status(400).json({ message: "Invalid username" });
+    return;
+  }
+
+  let user: users | null;
+
+  try {
+    user = await getUserByUsername(username);
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ message: "Internal server error" });
+    return;
+  }
+
+  console.log("user!:", user); // DEBUG
   if (!user) {
-    res.status(404).json({ message: `User not found: ${username}` });
+    res
+      .status(404)
+      .json({ message: `User not found for username: ${username}` });
     return;
   }
 
   try {
     await prisma.$transaction(async (prisma: any) => {
       await prisma.users.delete({
-        where: { user_id: user.user_id },
+        where: { user_id: user!.user_id },
       });
 
-      await deleteAuthUser(user.user_id.toString());
+      await deleteAuthUser(user!.user_id.toString());
     });
 
     res.json({ message: "User deleted" });

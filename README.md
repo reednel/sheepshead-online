@@ -22,6 +22,18 @@ A free and open source PWA for the card game Sheepshead. Or, it will be soon.
 
   - Username: `appuser@so.com`
   - Password: `apppw`
+  - Connect to the database:
+    1. Select "add new server"
+    2. In the general tab:
+       1. name: `appdb`
+    3. In the connection tab:
+       1. hostname: `app-db`
+       2. port: `5432`
+       3. maintainence database: `appdb`
+       4. username: `appuser`
+       5. password: `apppw`
+    4. press "save"
+  - The relevant information is in `Servers > appdb > Databases (2) > appdb > Schemas (1) > public`
 
 - Access the SuperTokens auth dashboard at `http://localhost:4000/auth/dashboard/`
 
