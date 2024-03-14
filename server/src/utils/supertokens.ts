@@ -8,6 +8,7 @@ import { RecipeUserId } from "supertokens-node";
 import {
   createUser,
   getUserByEmail,
+  getUserByUsername,
   isBannedEmail,
 } from "../controllers/user.controller";
 import {
@@ -98,7 +99,6 @@ SuperTokens.init({
                 const app_email = response.user.emails[0];
 
                 const app_user = await createUser(app_username, app_email);
-                // console.log("app_user:", app_user); // DEBUG
 
                 // Map auth user_id to app user_id
                 const app_user_id = app_user!.user_id.toString();
@@ -113,6 +113,14 @@ SuperTokens.init({
                 // TODO?: Send email verification
               }
               return response;
+            },
+            signIn: async function (input) {
+              console.log("input!:", input);
+              if (!isValidEmail(input.email)) {
+                let user = await getUserByUsername(input.email);
+                input.email = user?.email || input.email;
+              }
+              return originalImplementation.signIn(input);
             },
           };
         },
