@@ -108,7 +108,12 @@ export async function getUserByEmail(email: string): Promise<users | null> {
   }
 }
 
-// Create users record and user_configs record with all default values
+/**
+ * Create users record and user_configs record with all default values
+ * @param username
+ * @param email
+ * @returns {Promise<users|null>}
+ */
 export async function createUser(
   username: string,
   email: string
@@ -130,9 +135,15 @@ export async function createUser(
   }
 }
 
-// Delete user record
-// Cascades to user_configs, friends, and friend_requests
-// Also deletes the user from the auth database
+/**
+ * Delete user record
+ * Cascades to user_configs, friends, and friend_requests
+ * Also deletes the user from the auth database
+ * @param {SessionRequest} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ * @throws {Error} Throws an error for database issues, invalid input, etc.
+ */
 export async function deleteUser(req: SessionRequest, res: Response) {
   const username = req.body.username;
 
@@ -174,7 +185,13 @@ export async function deleteUser(req: SessionRequest, res: Response) {
   }
 }
 
-// Change user email
+/**
+ * Change user email
+ * @param {SessionRequest} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ * @throws {Error} Throws an error for database issues, invalid input, etc.
+ */
 export async function changeEmail(req: SessionRequest, res: Response) {
   let session = req.session!;
   let email = req.body.email;
@@ -234,7 +251,13 @@ export async function changeEmail(req: SessionRequest, res: Response) {
   }
 }
 
-// Change user password
+/**
+ * Change user password
+ * @param {SessionRequest} req
+ * @param {Response} res
+ * @returns {Promise<void>}
+ * @throws {Error} Throws an error for database issues, invalid input, etc.
+ */
 export async function changePassword(req: SessionRequest, res: Response) {
   let session = req.session;
   let oldPassword = req.body.oldPassword;
