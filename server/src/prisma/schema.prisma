@@ -8,48 +8,52 @@ datasource db {
   url      = env("APPDB_URL")
 }
 
-model cards {
-  card_id   Int     @id @db.SmallInt
-  card_code String  @unique @db.Char(2)
-  suit      String  @db.Char(1)
-  power     Int     @db.SmallInt
-  points    Int     @db.SmallInt
-  hands     hands[]
-  plays     plays[]
+model Cards {
+  card_id   Int    @id @db.SmallInt
+  card_code String @unique @db.Char(2)
+  suit      String @db.Char(1)
+  power     Int    @db.SmallInt
+  points    Int    @db.SmallInt
+
+  Hands Hands[]
+  Plays Plays[]
 }
 
-model friend_requests {
-  from_user_id                              Int
-  to_user_id                                Int
-  datetime_created                          DateTime @default(now()) @db.Timestamp(6)
-  users_friend_requests_from_user_idTousers users    @relation("friend_requests_from_user_idTousers", fields: [from_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  users_friend_requests_to_user_idTousers   users    @relation("friend_requests_to_user_idTousers", fields: [to_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+model Friend_Requests {
+  from_user_id     Int
+  to_user_id       Int
+  datetime_created DateTime @default(now()) @db.Timestamp(6)
+
+  Users_Friend_Requests_from_user_idToUsers Users @relation("Friend_Requests_from_user_idToUsers", fields: [from_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  Users_Friend_Requests_to_user_idToUsers   Users @relation("Friend_Requests_to_user_idToUsers", fields: [to_user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   // CHECK from_user_id != to_user_id
 
   @@id([from_user_id, to_user_id])
 }
 
-model friends {
-  user_1_id                      Int
-  user_2_id                      Int
-  datetime_created               DateTime @default(now()) @db.Timestamp(6)
-  users_friends_user_1_idTousers users    @relation("friends_user_1_idTousers", fields: [user_1_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
-  users_friends_user_2_idTousers users    @relation("friends_user_2_idTousers", fields: [user_2_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+model Friends {
+  user_1_id        Int
+  user_2_id        Int
+  datetime_created DateTime @default(now()) @db.Timestamp(6)
+
+  Users_Friends_user_1_idToUsers Users @relation("Friends_user_1_idToUsers", fields: [user_1_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  Users_Friends_user_2_idToUsers Users @relation("Friends_user_2_idToUsers", fields: [user_2_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   // CHECK user_1_id < user_2_id
 
   @@id([user_1_id, user_2_id])
 }
 
-model gamemodes {
-  gamemode_id   Int          @id @default(autoincrement()) @db.SmallInt
-  gamemode_code String       @unique @db.VarChar(8)
-  player_count  Int          @db.SmallInt
-  blind_size    Int?         @db.SmallInt
-  gatherings    gatherings[]
+model Gamemodes {
+  gamemode_id   Int    @id @default(autoincrement()) @db.SmallInt
+  gamemode_code String @unique @db.VarChar(8)
+  player_count  Int    @db.SmallInt
+  blind_size    Int?   @db.SmallInt
+
+  Houses Houses[]
 }
 
-model gatherings {
-  gathering_id         Int         @id @default(autoincrement())
+model Houses {
+  house_id             Int         @id @default(autoincrement())
   gamemode_id          Int
   leaster_legal        Boolean?
   automatic_double     Boolean?
@@ -57,58 +61,66 @@ model gatherings {
   players_permitted    user_groups @default(EVERYONE)
   spectators_permitted user_groups @default(EVERYONE)
   datetime_created     DateTime    @default(now()) @db.Timestamp(6)
-  gamemodes            gamemodes   @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
+
+  Gamemodes Gamemodes @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
+  Hands     Hands[]
 }
 
-model hands {
-  hand_id          Int       @id @default(autoincrement())
+model Hands {
+  hand_id          Int      @id @default(autoincrement())
+  house_id         Int
   leaster          Boolean?
-  called_ace       String?   @db.Char(2)
+  called_ace       String?  @db.Char(2)
   opposition_win   Boolean
-  winning_score    Int       @db.SmallInt
-  datetime_created DateTime  @default(now()) @db.Timestamp(6)
-  cards            cards?    @relation(fields: [called_ace], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
-  players          players[]
-  tricks           tricks[]
+  winning_score    Int      @db.SmallInt
+  datetime_created DateTime @default(now()) @db.Timestamp(6)
+
+  Houses  Houses    @relation(fields: [house_id], references: [house_id], onDelete: NoAction, onUpdate: NoAction)
+  Cards   Cards?    @relation(fields: [called_ace], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
+  Players Players[]
+  Tricks  Tricks[]
 }
 
-model players {
+model Players {
   user_id      Int
   hand_id      Int
   player_index Int        @db.SmallInt
   role         hand_roles
-  hands        hands      @relation(fields: [hand_id], references: [hand_id], onDelete: NoAction, onUpdate: NoAction)
-  users        users      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  Hands Hands @relation(fields: [hand_id], references: [hand_id], onDelete: NoAction, onUpdate: NoAction)
+  Users Users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([user_id, hand_id])
 }
 
-model tricks {
+model Tricks {
   hand_id     Int
-  trick_index Int     @db.SmallInt
+  trick_index Int @db.SmallInt
   winner      Int
-  points_won  Int     @db.SmallInt
-  hands       hands   @relation(fields: [hand_id], references: [hand_id], onDelete: NoAction, onUpdate: NoAction)
-  users       users   @relation(fields: [winner], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
-  plays       plays[]
+  points_won  Int @db.SmallInt
+
+  Hands Hands   @relation(fields: [hand_id], references: [hand_id], onDelete: NoAction, onUpdate: NoAction)
+  Users Users   @relation(fields: [winner], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  Plays Plays[]
 
   @@id([hand_id, trick_index])
 }
 
-model plays {
+model Plays {
   hand_id     Int
   trick_index Int    @db.SmallInt
   play_index  Int    @db.SmallInt
   user_id     Int    @db.SmallInt
   card_code   String @db.Char(2)
-  cards       cards  @relation(fields: [card_code], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
-  tricks      tricks @relation(fields: [hand_id, trick_index], references: [hand_id, trick_index], onDelete: NoAction, onUpdate: NoAction)
-  users       users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  Cards  Cards  @relation(fields: [card_code], references: [card_code], onDelete: NoAction, onUpdate: NoAction)
+  Tricks Tricks @relation(fields: [hand_id, trick_index], references: [hand_id, trick_index], onDelete: NoAction, onUpdate: NoAction)
+  Users  Users  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@id([hand_id, trick_index, play_index])
 }
 
-model user_configs {
+model User_Configs {
   user_id                 Int          @id
   lifetime_score_visible  Boolean      @default(true)
   friend_requests_enabled Boolean      @default(true)
@@ -117,39 +129,42 @@ model user_configs {
   app_theme               color_themes @default(SYSTEM)
   left_fielder            Boolean      @default(true)
   right_fielder           Boolean      @default(false)
-  users                   users        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  Users Users @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 }
 
-model users {
-  user_id                                             Int               @id @default(autoincrement())
-  username                                            String            @unique @db.VarChar(32)
-  email                                               String            @unique @db.VarChar(128)
-  display_name                                        String?           @db.VarChar(32)
-  display_city                                        String?           @db.VarChar(32)
-  display_region                                      String?           @db.VarChar(32)
-  display_country                                     String?           @db.VarChar(32)
-  bio                                                 String?           @db.VarChar(256)
-  hands_played                                        Int?              @default(0)
-  lifetime_score                                      Int?              @default(0)
-  datetime_created                                    DateTime          @default(now()) @db.Timestamp(6)
-  friend_requests_friend_requests_from_user_idTousers friend_requests[] @relation("friend_requests_from_user_idTousers")
-  friend_requests_friend_requests_to_user_idTousers   friend_requests[] @relation("friend_requests_to_user_idTousers")
-  friends_friends_user_1_idTousers                    friends[]         @relation("friends_user_1_idTousers")
-  friends_friends_user_2_idTousers                    friends[]         @relation("friends_user_2_idTousers")
-  players                                             players[]
-  tricks                                              tricks[]
-  plays                                               plays[]
-  user_configs                                        user_configs?
-  users_banned                                        users_banned?
+model Users {
+  user_id          Int      @id @default(autoincrement())
+  username         String   @unique @db.VarChar(32)
+  email            String   @unique @db.VarChar(128)
+  display_name     String?  @db.VarChar(32)
+  display_city     String?  @db.VarChar(32)
+  display_region   String?  @db.VarChar(32)
+  display_country  String?  @db.VarChar(32)
+  bio              String?  @db.VarChar(256)
+  hands_played     Int?     @default(0)
+  lifetime_score   Int?     @default(0)
+  datetime_created DateTime @default(now()) @db.Timestamp(6)
+
+  Friend_Requests_Friend_Requests_from_user_idToUsers Friend_Requests[] @relation("Friend_Requests_from_user_idToUsers")
+  Friend_Requests_Friend_Requests_to_user_idToUsers   Friend_Requests[] @relation("Friend_Requests_to_user_idToUsers")
+  Friends_Friends_user_1_idToUsers                    Friends[]         @relation("Friends_user_1_idToUsers")
+  Friends_Friends_user_2_idToUsers                    Friends[]         @relation("Friends_user_2_idToUsers")
+  Players                                             Players[]
+  Tricks                                              Tricks[]
+  Plays                                               Plays[]
+  User_Configs                                        User_Configs?
+  Users_Banned                                        Users_Banned?
 }
 
-model users_banned {
+model Users_Banned {
   user_banned_id   Int      @id @default(autoincrement())
   user_id          Int      @unique
   email            String   @unique @db.VarChar(128)
   reason           String?  @db.VarChar(256)
   datetime_created DateTime @default(now()) @db.Timestamp(6)
-  users            users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  Users Users @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 enum color_themes {

@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { users } from "@prisma/client";
+import { Users } from "@prisma/client";
 import SuperTokens from "supertokens-node";
 import Session from "supertokens-node/recipe/session";
 import { deleteUser as deleteAuthUser } from "supertokens-node";
@@ -15,7 +15,7 @@ import {
 
 // Check if an email is banned
 export async function isBannedEmail(email: string) {
-  let bannedEmails = await prisma.users_banned.findMany({
+  let bannedEmails = await prisma.Users_Banned.findMany({
     where: { email: email },
   });
   return bannedEmails.length > 0;
@@ -24,18 +24,18 @@ export async function isBannedEmail(email: string) {
 /**
  * Get a user record by username.
  * @param {string} username - The username to search for.
- * @returns {Promise<users|null>} The user object if found, or null if not found.
+ * @returns {Promise<Users|null>} The user object if found, or null if not found.
  * @throws {Error} Throws an error for database issues, invalid input, etc.
  */
 export async function getUserByUsername(
   username: string
-): Promise<users | null> {
+): Promise<Users | null> {
   if (!isValidUsername(username)) {
     throw new Error("Invalid username input");
   }
 
   try {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.Users.findUnique({
       where: { username: username },
     });
 
@@ -54,17 +54,17 @@ export async function getUserByUsername(
 /**
  * Get a user record by user_id.
  * @param {string} user_id - The user_id to search for.
- * @returns {Promise<users|null>} The user object if found, or null if not found.
+ * @returns {Promise<Users|null>} The user object if found, or null if not found.
  * @throws {Error} Throws an error for database issues, invalid input, etc.
  */
-export async function getUserByUserId(user_id: number): Promise<users | null> {
+export async function getUserByUserId(user_id: number): Promise<Users | null> {
   // Input validation (simple example, can be more complex)
   if (!isValidUserID(user_id)) {
     throw new Error("Invalid user_id input");
   }
 
   try {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.Users.findUnique({
       where: { user_id: user_id },
     });
 
@@ -83,16 +83,16 @@ export async function getUserByUserId(user_id: number): Promise<users | null> {
 /**
  * Get a user record by email.
  * @param {string} email - The email to search for.
- * @returns {Promise<users|null>} The user object if found, or null if not found.
+ * @returns {Promise<Users|null>} The user object if found, or null if not found.
  * @throws {Error} Throws an error for database issues, invalid input, etc.
  */
-export async function getUserByEmail(email: string): Promise<users | null> {
+export async function getUserByEmail(email: string): Promise<Users | null> {
   if (!isValidEmail(email)) {
     throw new Error("Invalid email input");
   }
 
   try {
-    const user = await prisma.users.findUnique({
+    const user = await prisma.Users.findUnique({
       where: { email: email },
     });
 
@@ -109,19 +109,19 @@ export async function getUserByEmail(email: string): Promise<users | null> {
 }
 
 /**
- * Create users record and user_configs record with all default values
+ * Create Users record and user_configs record with all default values
  * @param username
  * @param email
- * @returns {Promise<users|null>}
+ * @returns {Promise<Users|null>}
  */
 export async function createUser(
   username: string,
   email: string
-): Promise<users | null> {
+): Promise<Users | null> {
   try {
     let user = null;
     await prisma.$transaction(async (prisma: any) => {
-      user = await prisma.users.create({
+      user = await prisma.Users.create({
         data: { username: username, email: email },
       });
       await prisma.user_configs.create({
@@ -152,7 +152,7 @@ export async function deleteUser(req: SessionRequest, res: Response) {
     return;
   }
 
-  let user: users | null;
+  let user: Users | null;
 
   try {
     user = await getUserByUsername(username);
@@ -171,7 +171,7 @@ export async function deleteUser(req: SessionRequest, res: Response) {
 
   try {
     await prisma.$transaction(async (prisma: any) => {
-      await prisma.users.delete({
+      await prisma.Users.delete({
         where: { user_id: user!.user_id },
       });
 
@@ -234,7 +234,7 @@ export async function changeEmail(req: SessionRequest, res: Response) {
   try {
     await prisma.$transaction(async (prisma: any) => {
       // Update email in app db
-      await prisma.users.update({
+      await prisma.Users.update({
         where: { user_id: Number(session.getUserId()) },
         data: { email: email },
       });
