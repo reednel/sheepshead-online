@@ -21,7 +21,7 @@ export async function sendFriendRequest(req: SessionRequest, res: Response) {
     return;
   }
   // Check if users are already friends
-  const areFriends = await prisma.Friends.findFirst({
+  const areFriends = await prisma.friends.findFirst({
     where: {
       OR: [
         { user_1_id: from_user.user_id, user_2_id: to_user.user_id },
@@ -34,7 +34,7 @@ export async function sendFriendRequest(req: SessionRequest, res: Response) {
     return;
   }
   // Check if a friend request already exists
-  const friendRequest = await prisma.Friend_Requests.findFirst({
+  const friendRequest = await prisma.friend_requests.findFirst({
     where: {
       OR: [
         { from_user_id: from_user.user_id, to_user_id: to_user.user_id },
@@ -48,7 +48,7 @@ export async function sendFriendRequest(req: SessionRequest, res: Response) {
   }
   // Create the friend request
   try {
-    const result = await prisma.Friend_Requests.create({
+    const result = await prisma.friend_requests.create({
       data: { from_user_id: from_user.user_id, to_user_id: to_user.user_id },
     });
     res.json({ message: "Friend request created" });
@@ -114,7 +114,7 @@ export async function acceptFriendRequest(req: Request, res: Response) {
     return;
   }
   // Check that a friend request exists
-  const friendRequest = await prisma.Friend_Requests.findFirst({
+  const friendRequest = await prisma.friend_requests.findFirst({
     where: {
       from_user_id: from_user.user_id,
       to_user_id: to_user.user_id,
@@ -125,7 +125,7 @@ export async function acceptFriendRequest(req: Request, res: Response) {
     return;
   }
   // Check if users are already friends
-  const areFriends = await prisma.Friends.findFirst({
+  const areFriends = await prisma.friends.findFirst({
     where: {
       OR: [
         { user_1_id: from_user.user_id, user_2_id: to_user.user_id },
@@ -140,7 +140,7 @@ export async function acceptFriendRequest(req: Request, res: Response) {
   // Delete the friend request and create the friendship
   try {
     const result = await prisma.$transaction(async (prisma) => {
-      const friendRequest = await prisma.Friend_Requests.delete({
+      const friendRequest = await prisma.friend_requests.delete({
         where: {
           from_user_id_to_user_id: {
             from_user_id: from_user.user_id,
@@ -150,7 +150,7 @@ export async function acceptFriendRequest(req: Request, res: Response) {
       });
       const user1Id = Math.min(from_user.user_id, to_user.user_id);
       const user2Id = Math.max(from_user.user_id, to_user.user_id);
-      const friend = await prisma.Friends.create({
+      const friend = await prisma.friends.create({
         data: { user_1_id: user1Id, user_2_id: user2Id },
       });
       return { friendRequest, friend };
@@ -184,7 +184,7 @@ export async function ignoreFriendRequest(req: Request, res: Response) {
   }
   // Delete the friend request
   try {
-    const result = await prisma.Friend_Requests.delete({
+    const result = await prisma.friend_requests.delete({
       where: {
         from_user_id_to_user_id: {
           from_user_id: from_user.user_id,
@@ -224,7 +224,7 @@ export async function removeFriend(req: Request, res: Response) {
   try {
     const user1Id = Math.min(from_user.user_id, to_user.user_id);
     const user2Id = Math.max(from_user.user_id, to_user.user_id);
-    const result = await prisma.Friends.delete({
+    const result = await prisma.friends.delete({
       where: {
         user_1_id_user_2_id: {
           user_1_id: user1Id,
