@@ -6,7 +6,7 @@ A free and open source PWA for the card game Sheepshead. Or, it will be soon.
 
 ## Development Instructions
 
-> Note: this app requires [Docker](https://www.docker.com/get-started/)
+> Note: this app requires [Node](https://nodejs.org/en) and [Docker](https://www.docker.com/get-started/).
 
 1. Fork this repository and clone it to your machine.
 2. Checkout the development branch: `git checkout develop`
