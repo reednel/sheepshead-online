@@ -138,6 +138,7 @@ model users {
   username         String   @unique @db.VarChar(32)
   email            String   @unique @db.VarChar(128)
   display_name     String?  @db.VarChar(32)
+  pronouns         String?  @db.VarChar(32)
   display_city     String?  @db.VarChar(32)
   display_region   String?  @db.VarChar(32)
   display_country  String?  @db.VarChar(32)
