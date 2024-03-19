@@ -5,8 +5,8 @@ import EmailPassword from "supertokens-node/recipe/emailpassword";
 import EmailVerification from "supertokens-node/recipe/emailverification";
 import Session from "supertokens-node/recipe/session";
 import { RecipeUserId } from "supertokens-node";
+import { createUser } from "../controllers/auth.controller";
 import {
-  createUser,
   getUserByEmail,
   getUserByUsername,
   isBannedEmail,

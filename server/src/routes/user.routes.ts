@@ -4,8 +4,6 @@ import * as userController from "../controllers/user.controller";
 
 const router = express.Router();
 
-router.delete("/delete-user", verifySession(), userController.deleteUser);
-router.post("/change-email", verifySession(), userController.changeEmail);
-router.post("/change-password", verifySession(), userController.changePassword);
+router.get("/u/update", verifySession(), userController.updateUser);
 
 export default router;

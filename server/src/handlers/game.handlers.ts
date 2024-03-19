@@ -1,4 +1,5 @@
 import { Server, Socket } from "socket.io";
+import { CreateGamePayload, JoinGamePayload } from "../types/socket.types";
 
 const registerGameHandlers = (io: Server, socket: Socket) => {
   const createGame = (payload: CreateGamePayload) => {

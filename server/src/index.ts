@@ -5,10 +5,17 @@ import { Server } from "socket.io";
 import cors from "cors";
 import supertokens from "supertokens-node";
 import { errorHandler, middleware } from "supertokens-node/framework/express";
-import userRoutes from "./routes/user.routes";
+import authRoutes from "./routes/auth.routes";
 import friendRoutes from "./routes/friend.routes";
+import userRoutes from "./routes/user.routes";
 import registerGameHandlers from "./handlers/game.handlers";
 import "./utils/supertokens";
+import {
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketData,
+} from "./types/socket.types";
 
 dotenv.config();
 
@@ -33,8 +40,9 @@ app.use(
 );
 
 app.use(middleware());
-app.use(userRoutes);
+app.use(authRoutes);
 app.use(friendRoutes);
+app.use(userRoutes);
 app.use(errorHandler());
 
 io.on("connection", (socket) => {
