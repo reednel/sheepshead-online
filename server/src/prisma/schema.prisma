@@ -43,18 +43,11 @@ model friends {
   @@id([user_1_id, user_2_id])
 }
 
-model gamemodes {
-  gamemode_id   Int    @id @default(autoincrement()) @db.SmallInt
-  gamemode_code String @unique @db.VarChar(8)
-  player_count  Int    @db.SmallInt
-  blind_size    Int?   @db.SmallInt
-
-  houses houses[]
-}
-
 model houses {
   house_id             Int         @id @default(autoincrement())
-  gamemode_id          Int
+  host_id              Int
+  player_count         Int         @db.SmallInt
+  blind_size           Int?        @db.SmallInt
   leaster_legal        Boolean?
   automatic_double     Boolean?
   chat_enabled         Boolean     @default(true)
@@ -62,8 +55,8 @@ model houses {
   spectators_permitted user_groups @default(EVERYONE)
   datetime_created     DateTime    @default(now()) @db.Timestamp(6)
 
-  gamemodes gamemodes @relation(fields: [gamemode_id], references: [gamemode_id], onDelete: NoAction, onUpdate: NoAction)
-  hands     hands[]
+  users users   @relation(fields: [host_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+  hands hands[]
 }
 
 model hands {
@@ -152,6 +145,7 @@ model users {
   friends_friends_user_1_idTousers                    friends[]         @relation("friends_user_1_idTousers")
   friends_friends_user_2_idTousers                    friends[]         @relation("friends_user_2_idTousers")
   players                                             players[]
+  houses                                              houses[]
   tricks                                              tricks[]
   plays                                               plays[]
   user_configs                                        user_configs?
