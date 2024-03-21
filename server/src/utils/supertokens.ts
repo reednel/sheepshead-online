@@ -147,6 +147,8 @@ SuperTokens.init({
         },
       },
     }),
-    Session.init(),
+    Session.init({
+      exposeAccessTokenToFrontendInCookieBasedAuth: true,
+    }),
   ],
 });

@@ -1,33 +1,20 @@
 import dotenv from "dotenv";
 import express from "express";
 import { createServer } from "http";
-import { Server } from "socket.io";
 import cors from "cors";
 import supertokens from "supertokens-node";
 import { errorHandler, middleware } from "supertokens-node/framework/express";
 import authRoutes from "./routes/auth.routes";
 import friendRoutes from "./routes/friend.routes";
 import userRoutes from "./routes/user.routes";
-import registerGameHandlers from "./handlers/game.handlers";
 import "./utils/supertokens";
 import { connectRedis, disconnectRedis } from "./utils/redis";
-import {
-  ClientToServerEvents,
-  InterServerEvents,
-  ServerToClientEvents,
-  SocketData,
-} from "./types/socket.types";
+import { initializeWebSocket } from "./utils/socket";
 
 dotenv.config();
 
 const app = express();
 const server = createServer(app);
-const io = new Server<
-  ClientToServerEvents,
-  ServerToClientEvents,
-  InterServerEvents,
-  SocketData
->(server);
 
 app.use(express.json());
 app.disable("x-powered-by");
@@ -48,9 +35,7 @@ app.use(friendRoutes);
 app.use(userRoutes);
 app.use(errorHandler());
 
-io.on("connection", (socket) => {
-  registerGameHandlers(io, socket);
-});
+const io = initializeWebSocket(server);
 
 server.listen(4000, () =>
   console.log("Sheepshead Online server ready at: http://localhost:4000")

@@ -17,6 +17,10 @@ export interface SocketData {
   age: number;
 }
 
+export interface ConnectUserPayload {
+  userID: number;
+}
+
 export interface CreateGamePayload {
   gameID: number;
 }
