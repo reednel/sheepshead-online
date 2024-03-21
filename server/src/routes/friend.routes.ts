@@ -1,7 +1,5 @@
 import express from "express";
 import { verifySession } from "supertokens-node/recipe/session/framework/express";
-import { SessionRequest } from "supertokens-node/framework/express";
-
 import * as friendController from "../controllers/friend.controller";
 
 const router = express.Router();

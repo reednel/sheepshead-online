@@ -10,6 +10,7 @@ import friendRoutes from "./routes/friend.routes";
 import userRoutes from "./routes/user.routes";
 import registerGameHandlers from "./handlers/game.handlers";
 import "./utils/supertokens";
+import { connectRedis, disconnectRedis } from "./utils/redis";
 import {
   ClientToServerEvents,
   InterServerEvents,
@@ -39,6 +40,8 @@ app.use(
   })
 );
 
+connectRedis();
+
 app.use(middleware());
 app.use(authRoutes);
 app.use(friendRoutes);
@@ -52,3 +55,16 @@ io.on("connection", (socket) => {
 server.listen(4000, () =>
   console.log("Sheepshead Online server ready at: http://localhost:4000")
 );
+
+function handleExit(signal: NodeJS.Signals) {
+  console.log(`Received ${signal}. Closing server and Redis client.`);
+  server.close(async () => {
+    await disconnectRedis();
+    console.log("Server and Redis client closed.");
+    process.exit(0);
+  });
+}
+
+// Handle shutdown signals
+process.on("SIGTERM", handleExit);
+process.on("SIGINT", handleExit);

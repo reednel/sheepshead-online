@@ -1,10 +1,8 @@
 import { Response } from "express";
 import { SessionRequest } from "supertokens-node/framework/express";
 import { prisma } from "../utils/prisma";
-import redis from "redis";
+import { redisClient } from "../utils/redis";
 import { House } from "../types/redis.types";
-
-const redisClient = redis.createClient();
 
 // All a rough draft
 
@@ -63,7 +61,7 @@ export async function createHouse(req: SessionRequest, res: Response) {
  * @throws {Error} Throws an error for database issues, invalid input, etc.
  */
 export async function joinHouse(req: SessionRequest, res: Response) {
-  const house_id = Number(req.body.house_id);
+  const { house_id } = req.params;
   const user_id = Number(req.session!.getUserId());
 
   const house = JSON.parse(

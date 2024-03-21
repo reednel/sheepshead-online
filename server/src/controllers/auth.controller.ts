@@ -198,7 +198,7 @@ export async function changePassword(req: SessionRequest, res: Response) {
     return;
   }
 
-  // update the user's password using updateEmailOrPassword
+  // update the user's password
   let response = await EmailPassword.updateEmailOrPassword({
     recipeUserId: session!.getRecipeUserId(),
     password: updatedPassword,
@@ -213,7 +213,7 @@ export async function changePassword(req: SessionRequest, res: Response) {
   // revoke all sessions for the user
   await Session.revokeAllSessionsForUser(userId);
 
-  // revoke the current user's session, we do this to remove the auth cookies, logging out the user on the frontend.
+  // revoke user's session, removing the auth cookies, logging out the user on frontend
   await req.session!.revokeSession();
 
   // TODO: send successful password update response
