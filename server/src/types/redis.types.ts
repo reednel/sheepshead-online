@@ -1,6 +1,6 @@
 import { houses } from "@prisma/client";
 
-export interface House {
+export interface HouseData {
   houseRecord: houses;
   playerList: number[];
 }
