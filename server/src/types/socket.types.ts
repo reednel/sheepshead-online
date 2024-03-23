@@ -21,10 +21,8 @@ export interface ConnectUserPayload {
   userID: number;
 }
 
-export interface CreateGamePayload {
+export interface MoveData {
+  houseKey: string;
   gameID: number;
-}
-
-export interface JoinGamePayload {
-  gameID: number;
+  move: string;
 }

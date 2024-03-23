@@ -2,9 +2,11 @@ import { createClient } from "redis";
 
 // Create a Redis client instance
 const redisClient = createClient({
-  url: "redis://localhost:6379",
+  socket: {
+    host: "app-cache",
+    port: 6379,
+  },
 });
-
 redisClient.on("error", (err) => console.log("Redis Client Error", err));
 redisClient.on("connect", () => console.log("Redis Client Connected"));
 

@@ -20,7 +20,7 @@ import {
 dotenv.config();
 
 SuperTokens.init({
-  debug: true,
+  // debug: true, // DEBUG
   framework: "express",
   supertokens: {
     connectionURI: "http://auth-server:3567",
